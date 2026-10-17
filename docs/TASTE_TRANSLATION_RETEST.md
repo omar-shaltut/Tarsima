@@ -187,7 +187,9 @@ London
 
 Status:
 
-`PRE-REGISTERED — COVERAGE CHECK PENDING`
+`COVERAGE CHECK PASSED`
+
+Coverage note: Generic Qloo queries with no taste-profile signals returned at least 10 candidates for Museum, Art gallery, and Book store in London. `filter.tags` represents tag membership rather than a hard primary-category constraint, so this check establishes candidate availability, not category purity.
 
 The second city should have sufficient Qloo coverage across multiple cultural/local-place categories.
 
