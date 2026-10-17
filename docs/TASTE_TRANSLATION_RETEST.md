@@ -183,7 +183,11 @@ Status:
 
 ### City 2
 
-`TO BE PRE-REGISTERED BEFORE RUN`
+London
+
+Status:
+
+`PRE-REGISTERED — COVERAGE CHECK PENDING`
 
 The second city should have sufficient Qloo coverage across multiple cultural/local-place categories.
 
