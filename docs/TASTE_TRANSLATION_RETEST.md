@@ -332,7 +332,7 @@ Concern increases if:
 
 ## Numerical thresholds
 
-No new hard numerical success threshold is declared in this document yet.
+No hard single-metric numerical success threshold is declared for Jaccard, Spearman, Pearson, or affinity-delta metrics.
 
 Reason:
 
@@ -340,7 +340,17 @@ The available pilot sample is too small to justify treating a specific Jaccard, 
 
 Threshold status:
 
-`UNRESOLVED — DEFINE ONLY IF JUSTIFIED BEFORE FINAL EXECUTION`
+`RESOLVED — NO HARD SINGLE-METRIC THRESHOLD`
+
+No Jaccard, Spearman, Pearson, or affinity-delta cutoff is treated as scientifically established from the pilot sample.
+
+For each profile-pair/city case, semantic evidence is considered operationally positive only when at least 3 of 4 blind evaluators:
+- assign the recommendation lists to the correct profiles; and
+- judge the distinction as meaningfully taste-related rather than mainly generic/category-driven.
+
+This 3-of-4 rule is an operational preregistration criterion, not a statistical-significance claim.
+
+`SUPPORTED_FOR_NEXT_STAGE` additionally requires the positive semantic pattern to generalize across both destination cities and across multiple pre-registered profile pairs, while showing meaningful advantage over the `UNSIGNALED_QLOO_BASELINE`.
 
 The final decision must consider consistency across profile pairs, cities, baseline comparisons, and blind semantic evaluation rather than a single metric.
 
