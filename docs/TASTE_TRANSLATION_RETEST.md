@@ -154,7 +154,7 @@ Status:
 Profile G:
 - Into the Wild — movie
 - Patagonia — brand
-- Walden — book
+- Walden (1854, Henry David Thoreau) — book
 
 Profile H:
 - Lost in Translation — movie
@@ -164,6 +164,8 @@ Profile H:
 Status:
 
 `PRE-REGISTERED — STRICT RESOLUTION PENDING`
+
+Resolution note: `Walden` returned two exact `urn:entity:book` matches. Before any recommendation retrieval, the intended seed was deterministically disambiguated to the 1854 Henry David Thoreau work using Qloo metadata; no recommendation results were inspected.
 
 No Pair 2 or Pair 3 recommendation results may be inspected before all six seeds in that pair pass strict resolution.
 
