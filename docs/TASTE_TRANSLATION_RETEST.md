@@ -245,7 +245,7 @@ For each profile-pair/city case:
 
 Minimum evaluator count:
 
-`UNRESOLVED — SET BEFORE FINAL RETEST RUN`
+`4 INDEPENDENT MODEL EVALUATORS`
 
 The pilot used two model evaluators and was not sufficient for a strong semantic conclusion.
 
