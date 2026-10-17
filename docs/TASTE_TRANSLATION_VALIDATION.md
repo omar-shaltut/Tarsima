@@ -46,7 +46,8 @@ Start with two deliberately contrasting profiles already used in the repository:
 
 ### Profile B
 - Ratatouille — movie
-- IKEA — brand
+- Anthropologie — brand
+  - Originally specified as IKEA; replaced before downstream retrieval after strict type resolution found no IKEA urn:entity:brand result.
 - The Little Prince — book
 
 A seed that cannot be resolved unambiguously must not be silently replaced. The run must stop and report the resolution failure so the profile can be repaired explicitly.
@@ -135,3 +136,148 @@ No expansion of the agent loop or trust architecture should be justified by this
 - `PRODUCT_THESIS_NOT_SUPPORTED`
 
 The experiment result, not architectural preference, determines the next stage.
+
+## Observed validation result - 2026-10-17
+
+Run: `20261017T100744Z`
+City: Istanbul
+Profiles:
+- A: Interstellar + MUJI + The Martian
+- B: Ratatouille + Anthropologie + The Little Prince
+
+### Seed resolution
+
+All six final seeds resolved exactly by expected entity type.
+
+`IKEA` was replaced with `Anthropologie` before downstream retrieval because Qloo search returned IKEA only as `urn:entity:place`, not as `urn:entity:brand`. No recommendation results had been inspected before this replacement.
+
+### Initial unconstrained retrieval
+
+All 16 TARGET / COUNTERPROFILE / ABLATE / SINGLE arms completed with 25 candidates.
+
+TARGET vs COUNTERPROFILE:
+- Jaccard: 47.1%
+- Top-10 overlap: 30.0%
+
+Ablation showed material seed sensitivity:
+- Profile A without MUJI: Jaccard 8.7%, Top-10 overlap 10.0%
+- Profile B without Anthropologie: Jaccard 2.0%, Top-10 overlap 0.0%
+- Profile B without The Little Prince: Jaccard 100.0%, Top-10 overlap 100.0%
+
+This confirms that seed changes can materially affect unconstrained retrieval, but does not by itself establish meaningful taste translation.
+
+### Blind evaluation
+
+Before revealing the answer key:
+- Profile A: INDETERMINATE, low confidence
+- Profile B: selected List B, low-to-moderate confidence
+
+The answer key showed List B was TARGET for both profiles.
+
+Interpretation:
+- Profile B produced one blind hit.
+- Profile A was not distinguishable with confidence.
+- The two blind packets used the same TARGET/COUNTERPROFILE pair in opposite profile contexts, so they are not independent trials.
+
+### Food-signal metric invalidation
+
+The initial `FoodSignalShare` metric is not valid as a category-collapse measure.
+
+The implementation searched across all tag names, so hotel entities were marked as food-related when they merely had tags such as `Dining` or the amenity `Restaurant`.
+
+Example:
+- `Romantic Hotel Istanbul`
+- primary genre: Hotel
+- place category: Lodging / Hotel
+- restaurant signal came from an amenity tag, not the entity's primary category
+
+Therefore the reported 96% food share must not be used as evidence for food-category collapse.
+
+### Retrieval-space diagnosis
+
+Using Qloo primary genre / place-category fields showed the unconstrained TARGET results were heavily hospitality-oriented.
+
+Profile A TARGET:
+- approximately 20 of 25 results were Hotel/Hostel-like
+
+Profile B TARGET:
+- approximately 21 of 25 results were Hotel/Hostel-like
+
+Excluding hotel/lodging tags caused results to shift mainly toward cafes, restaurants, bakeries, and bars rather than toward a broad set of cultural/local-place categories.
+
+Adding further exclusions produced long-tail restaurant/hospitality variants rather than robust diversification.
+
+Conclusion: blacklist-style category exclusion is not an acceptable diversification strategy.
+
+### Positive category-controlled probes
+
+Positive `filter.tags` probes were run to separate taste effects from category-selection effects.
+
+#### Museum
+
+Profile A vs Profile B:
+- shared candidates: 23
+- union: 27
+- Jaccard: 85.2%
+- Top-10 overlap: 90.0%
+- Spearman rank correlation: 0.841
+- Pearson affinity correlation: 0.986
+- mean affinity delta: 0.0538
+- affinity-delta standard deviation: 0.0070
+
+#### Art gallery
+
+Only 7 candidates were returned for each profile.
+
+Profile A vs Profile B:
+- shared candidates: 7 / 7
+- Jaccard: 100.0%
+- Spearman rank correlation: 0.893
+- Pearson affinity correlation: 0.999
+- mean affinity delta: 0.0506
+- affinity-delta standard deviation: 0.0071
+
+#### Book store
+
+Profile A vs Profile B:
+- shared candidates: 23
+- union: 27
+- Jaccard: 85.2%
+- Top-10 overlap: 100.0%
+- Spearman rank correlation: 0.947
+- Pearson affinity correlation: 0.992
+
+Across all three controlled categories, contrasting taste profiles produced largely the same candidate sets and strongly correlated rankings.
+
+### Fixed mixed-category pool
+
+A fixed pool of 21 candidates was created from Museum, Book store, and Art gallery results and passed to both profiles using `filter.results.entities`.
+
+Profile A vs Profile B:
+- Top-10 overlap: 100.0%
+- Spearman rank correlation: 0.969
+- Pearson affinity correlation: 0.995
+
+This shows that even with the same mixed-category candidate pool, the two contrasting profiles produced nearly identical top results and highly correlated affinity scores.
+
+### Current interpretation
+
+Confirmed:
+- Qloo responds to cross-domain seed changes.
+- Some ablations materially change unconstrained retrieval.
+- Qloo can score a fixed candidate pool.
+
+Not confirmed:
+- strong taste-sensitive candidate discovery within a controlled category;
+- strong taste-sensitive reranking within a fixed mixed-category pool;
+- meaningful cross-domain taste translation sufficient to justify the current Qloo-only product architecture.
+
+The high Pearson correlations and relatively stable affinity offsets are consistent with a possible profile-level score shift rather than strong item-specific discrimination. This is an observed hypothesis, not a claim about Qloo's internal architecture.
+
+### Decision gate
+
+`QLOO_STRATEGY_NEEDS_REVISION`
+
+The evidence does not justify proceeding to the agent loop, final trust architecture, or UI on the assumption that Qloo-only cross-domain place discovery is validated.
+
+The product thesis itself is not yet rejected. The next stage should test a revised architecture or revised use of Qloo against explicit baselines before implementation expands.
