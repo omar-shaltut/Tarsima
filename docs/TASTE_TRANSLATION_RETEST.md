@@ -136,22 +136,34 @@ Status:
 ### Pair 2
 
 Profile E:
-
-`TO BE PRE-REGISTERED BEFORE RUN`
+- Blade Runner 2049 — movie
+- Tesla — brand
+- Snow Crash — book
 
 Profile F:
+- The Grand Budapest Hotel — movie
+- Gucci — brand
+- The Great Gatsby — book
 
-`TO BE PRE-REGISTERED BEFORE RUN`
+Status:
+
+`PRE-REGISTERED — STRICT RESOLUTION PENDING`
 
 ### Pair 3
 
 Profile G:
-
-`TO BE PRE-REGISTERED BEFORE RUN`
+- Into the Wild — movie
+- Patagonia — brand
+- Walden — book
 
 Profile H:
+- Lost in Translation — movie
+- Aesop — brand
+- Norwegian Wood — book
 
-`TO BE PRE-REGISTERED BEFORE RUN`
+Status:
+
+`PRE-REGISTERED — STRICT RESOLUTION PENDING`
 
 No Pair 2 or Pair 3 recommendation results may be inspected before all six seeds in that pair pass strict resolution.
 
