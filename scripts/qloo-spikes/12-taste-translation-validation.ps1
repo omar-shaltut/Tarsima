@@ -143,7 +143,7 @@ $profiles = @{
     )
     B = @(
         [PSCustomObject]@{ Name='Ratatouille'; Type='urn:entity:movie' },
-        [PSCustomObject]@{ Name='IKEA'; Type='urn:entity:brand' },
+        [PSCustomObject]@{ Name='Anthropologie'; Type='urn:entity:brand' },
         [PSCustomObject]@{ Name='The Little Prince'; Type='urn:entity:book' }
     )
 }
