@@ -159,13 +159,15 @@ Profile G:
 Profile H:
 - Lost in Translation — movie
 - Aesop — brand
-- Norwegian Wood — book
+- Norwegian Wood (1987, Haruki Murakami) — book
 
 Status:
 
 `PRE-REGISTERED — STRICT RESOLUTION PENDING`
 
 Resolution note: `Walden` returned two exact `urn:entity:book` matches. Before any recommendation retrieval, the intended seed was deterministically disambiguated to the 1854 Henry David Thoreau work using Qloo metadata; no recommendation results were inspected.
+
+Resolution note: `Norwegian Wood` returned three exact `urn:entity:book` matches. Before any recommendation retrieval, the intended seed was deterministically disambiguated to the 1987 Haruki Murakami work using Qloo metadata; no recommendation results were inspected.
 
 No Pair 2 or Pair 3 recommendation results may be inspected before all six seeds in that pair pass strict resolution.
 
