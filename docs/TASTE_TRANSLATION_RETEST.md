@@ -217,6 +217,12 @@ Do not construct large blacklist-style exclusion systems to force diversity.
 
 For each profile pair and city:
 
+Candidate contribution per profile per controlled category:
+
+`TOP 7`
+
+This retains the same per-category contribution used in the pilot and is fixed before formal recommendation retrieval.
+
 1. run controlled retrieval for the predefined categories;
 2. collect a fixed number of top candidates per category from both profiles;
 3. union and deduplicate candidate IDs;
