@@ -105,7 +105,11 @@ The retest must not fabricate a popularity baseline by removing signals or chang
 
 Baseline semantics status:
 
-`UNRESOLVED — VERIFY BEFORE EXECUTION`
+`RESOLVED — UNSIGNALED_QLOO_BASELINE`
+
+The baseline uses the same destination, controlled category constraints, and frozen candidate pool as the personalized condition, but omits `signal.interests.entities`.
+
+It is interpreted only as Qloo's unsignaled/default ranking for the same qualified candidates. It must not be described as a popularity baseline unless Qloo explicitly documents that equivalence.
 
 ## Profile pairs
 
