@@ -260,24 +260,154 @@ Profile A vs Profile B:
 
 This shows that even with the same mixed-category candidate pool, the two contrasting profiles produced nearly identical top results and highly correlated affinity scores.
 
+### Stress test with more strongly separated profiles
+
+A follow-up stress test was run because Profiles A and B might not have been sufficiently separated to support a general conclusion about Qloo personalization.
+
+Profiles:
+
+Profile C:
+- Mad Max: Fury Road — movie
+- Harley-Davidson — brand
+- Neuromancer — book
+
+Profile D:
+- Amélie — movie
+- Anthropologie — brand
+- The Little Prince — book
+
+All six seeds resolved uniquely by exact expected entity type before downstream testing.
+
+#### Re-scoring the original fixed 21-candidate pool
+
+Using the same fixed candidate pool previously used for A/B:
+
+Profile C vs Profile D:
+- Top-10 overlap: 70.0%
+- Spearman rank correlation: 0.529
+- Pearson affinity correlation: 0.703
+- mean affinity delta: -0.0558
+- affinity-delta standard deviation: 0.0468
+
+This differs materially from A/B, which produced:
+- Top-10 overlap: 100.0%
+- Spearman: 0.969
+- Pearson: 0.995
+- affinity-delta standard deviation: approximately 0.007
+
+This demonstrates that Qloo can produce materially different item-level rankings when the taste profiles are more strongly separated.
+
+#### Category-controlled C/D probes
+
+Museum:
+- shared: 23
+- union: 27
+- Jaccard: 85.2%
+- Top-10 overlap: 90.0%
+- Spearman: 0.854
+- Pearson: 0.760
+
+Art gallery:
+- shared: 7 / 7
+- Jaccard: 100.0%
+- Top-7 overlap: 100.0%
+- Spearman: 0.643
+- Pearson: 0.989
+
+Book store:
+- shared: 22
+- union: 28
+- Jaccard: 78.6%
+- Top-10 overlap: 70.0%
+- Spearman: 0.717
+- Pearson: 0.894
+
+These results show stronger profile-sensitive ranking behavior than the original A/B comparison, especially for Museum and Book store.
+
+#### Independent C/D mixed candidate pool
+
+A new fixed mixed-category pool of 25 candidates was constructed from C/D Museum, Book store, and Art gallery results.
+
+On this pool:
+
+- Top-10 overlap: 70.0%
+- Spearman rank correlation: 0.472
+- Pearson affinity correlation: 0.718
+- mean affinity delta: -0.0528
+- affinity-delta standard deviation: 0.0434
+
+The separation therefore replicated on a candidate pool constructed independently from A/B.
+
+The unique Top-10 results were:
+
+Profile C:
+- Hagia Irene — Museum
+- Galata Kulesi — Museum
+- Salt Galata — Modern art museum
+
+Profile D:
+- HEYBEM KİTAP KAHVE — Cafe
+- Nostalji Kitap Cafe — Cafe
+- Nadide — Cafe
+
+This demonstrates a category-level difference between the profiles. It does not by itself prove meaningful cross-domain taste translation.
+
+### Blind semantic evaluation of the C/D stress test
+
+A randomized blind packet was created from the C/D mixed-pool Top-10 results.
+
+Answer key:
+- List X = Profile C
+- List Y = Profile D
+
+Two independent model evaluations were collected before revealing the key:
+
+Evaluator 1:
+- assigned X → D and Y → C
+- confidence: LOW
+- judged the distinction mostly generic/category-driven
+
+Evaluator 2:
+- assigned X → C and Y → D
+- confidence: low
+- judged the distinction mostly category-driven, with a plausible taste signal primarily on the D side
+
+Result:
+- 1 of 2 evaluators matched the answer key
+- both reported low confidence
+- both independently judged the semantic distinction as weak
+
+The blind test therefore does not validate meaningful taste translation even though the numerical ranking separation is real.
+
 ### Current interpretation
 
 Confirmed:
 - Qloo responds to cross-domain seed changes.
 - Some ablations materially change unconstrained retrieval.
 - Qloo can score a fixed candidate pool.
+- More strongly separated taste profiles can produce materially different rankings and affinity patterns.
+- This ranking separation replicated on an independently constructed fixed candidate pool.
 
-Not confirmed:
-- strong taste-sensitive candidate discovery within a controlled category;
-- strong taste-sensitive reranking within a fixed mixed-category pool;
-- meaningful cross-domain taste translation sufficient to justify the current Qloo-only product architecture.
+Not yet confirmed:
+- that the ranking differences represent meaningful cross-domain taste translation rather than broad category preference shifts;
+- that blind evaluators can reliably recover the intended taste profile from recommendations;
+- that the current Qloo formulation outperforms generic/popularity/category baselines;
+- that the effect generalizes across multiple independent profile pairs and cities.
 
-The high Pearson correlations and relatively stable affinity offsets are consistent with a possible profile-level score shift rather than strong item-specific discrimination. This is an observed hypothesis, not a claim about Qloo's internal architecture.
+The earlier inference that Qloo might mainly apply a profile-level score offset is not supported as a general explanation after the C/D stress test. It may describe the original A/B pair, but not the more strongly separated profiles.
 
 ### Decision gate
 
-`QLOO_STRATEGY_NEEDS_REVISION`
+`INCONCLUSIVE_RETEST`
 
-The evidence does not justify proceeding to the agent loop, final trust architecture, or UI on the assumption that Qloo-only cross-domain place discovery is validated.
+The evidence now supports Qloo personalization capability but does not yet validate the central TastePassport promise of meaningful cross-domain taste translation.
 
-The product thesis itself is not yet rejected. The next stage should test a revised architecture or revised use of Qloo against explicit baselines before implementation expands.
+Do not expand to the agent loop, final trust architecture, or UI yet.
+
+The next validation stage should:
+- test multiple pre-registered, strongly separated profile pairs;
+- use independent candidate pools;
+- add an explicit popularity or generic-category baseline once its API semantics are verified;
+- use multiple blind evaluators;
+- score semantic fit on the differing recommendations, not only overlap/rank metrics;
+- replicate across at least one additional destination city before freezing the product architecture.
