@@ -147,7 +147,7 @@ Profile F:
 
 Status:
 
-`PRE-REGISTERED — STRICT RESOLUTION PENDING`
+`RESOLVED — PRE-RETRIEVAL`
 
 ### Pair 3
 
@@ -163,7 +163,7 @@ Profile H:
 
 Status:
 
-`PRE-REGISTERED — STRICT RESOLUTION PENDING`
+`RESOLVED — PRE-RETRIEVAL`
 
 Resolution note: `Walden` returned two exact `urn:entity:book` matches. Before any recommendation retrieval, the intended seed was deterministically disambiguated to the 1854 Henry David Thoreau work using Qloo metadata; no recommendation results were inspected.
 
