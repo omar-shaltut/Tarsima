@@ -521,12 +521,12 @@ function Get-AffinityComparison {
     $deltas = @()
 
     foreach ($id in $sharedIds) {
-        $a = [double]($aAffinity[$id])
-        $b = [double]($bAffinity[$id])
+        $aValue = [double]($aAffinity[$id])
+        $bValue = [double]($bAffinity[$id])
 
-        $x += $a
-        $y += $b
-        $deltas += ($a - $b)
+        $x += $aValue
+        $y += $bValue
+        $deltas += ($aValue - $bValue)
     }
 
     $mean = ($deltas | Measure-Object -Average).Average
