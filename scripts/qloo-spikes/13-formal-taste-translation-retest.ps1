@@ -22,7 +22,14 @@ if ($CategoryTake -ne 7) {
 }
 
 $runId = (Get-Date).ToUniversalTime().ToString("yyyyMMddTHHmmssZ")
-$runDir = Join-Path $OutputRoot $runId
+
+if ([System.IO.Path]::IsPathRooted($OutputRoot)) {
+    $resolvedOutputRoot = $OutputRoot
+} else {
+    $resolvedOutputRoot = Join-Path (Get-Location).Path $OutputRoot
+}
+
+$runDir = Join-Path $resolvedOutputRoot $runId
 
 $categories = @(
     [PSCustomObject]@{
