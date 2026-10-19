@@ -273,11 +273,15 @@ For every profile-pair/city case:
 
 ### Retrieval metrics
 
+For each controlled category, compare the two profile-specific `TOP 7` retrievals using:
+
 - candidate count;
 - shared candidates;
 - union size;
 - Jaccard overlap;
-- Top-10 overlap.
+- Top-7 overlap.
+
+The aggregate union across controlled categories is also recorded for candidate-pool construction. Top-10 overlap is reserved for fixed-pool ranking, where at least 10 candidates are available.
 
 ### Fixed-pool ranking metrics
 
