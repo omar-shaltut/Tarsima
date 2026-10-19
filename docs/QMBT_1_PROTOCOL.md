@@ -161,6 +161,18 @@ If an entity qualifies in more than one category, assignment priority is fixed a
 
 After an entity is assigned to the first eligible category, later categories must backfill from their next-ranked candidate.
 
+Final list display order is also frozen to the same category-ID priority:
+
+1. art_gallery
+2. book_store
+3. museum
+4. park
+5. restaurant
+6. shopping_mall
+
+Within each category block, entities retain their condition-specific Qloo ranking order.
+
+Blind semantic and baseline packets include all 18 final-list entities; they must not truncate the quota-matched lists to Top 10.
 If a category cannot provide 3 unique entities after deterministic backfilling, the case is invalid and execution stops before blind evaluation.
 
 ## Retrieval formulation
