@@ -521,8 +521,8 @@ function Get-AffinityComparison {
     $deltas = @()
 
     foreach ($id in $sharedIds) {
-        $a = [double]$aAffinity[$id]
-        $b = [double]$bAffinity[$id]
+        $a = [double]($aAffinity[$id])
+        $b = [double]($bAffinity[$id])
 
         $x += $a
         $y += $b
