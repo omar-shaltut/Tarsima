@@ -1,6 +1,6 @@
 # Taste Translation Retest Protocol
 
-Status: PRE-REGISTRATION IN PROGRESS
+Status: PRE-REGISTERED — EXECUTION HARNESS PENDING
 
 This document defines the next validation gate for TastePassport.
 
@@ -111,6 +111,18 @@ The baseline uses the same destination, controlled category constraints, and fro
 
 It is interpreted only as Qloo's unsignaled/default ranking for the same qualified candidates. It must not be described as a popularity baseline unless Qloo explicitly documents that equivalence.
 
+Operational baseline-advantage rule:
+
+For each profile side within a profile-pair/city case, evaluators receive the profile seeds and anonymized personalized-versus-unsignaled Top-10 rankings drawn from the same frozen candidate pool.
+
+Baseline-advantage evidence for that profile side is operationally positive only when at least 3 of 4 blind evaluators:
+- identify the personalized ranking as the better fit for that profile; and
+- judge the advantage as meaningfully taste-related rather than mainly generic/category-driven.
+
+A profile-pair/city case has operationally positive baseline advantage only when both profile sides satisfy this rule.
+
+This rule is an operational preregistration criterion, not a statistical-significance claim.
+
 ## Profile pairs
 
 Use multiple strongly separated profile pairs.
@@ -209,7 +221,7 @@ Initial controlled categories:
 
 These are retained because they were already used in the pilot and support comparison with prior results.
 
-Additional categories may be added only before execution and must be documented here.
+No additional controlled categories will be added for the formal retest. Museum, Art gallery, and Book store are frozen before execution.
 
 Do not construct large blacklist-style exclusion systems to force diversity.
 
@@ -356,7 +368,22 @@ For each profile-pair/city case, semantic evidence is considered operationally p
 
 This 3-of-4 rule is an operational preregistration criterion, not a statistical-significance claim.
 
-`SUPPORTED_FOR_NEXT_STAGE` additionally requires the positive semantic pattern to generalize across both destination cities and across multiple pre-registered profile pairs, while showing meaningful advantage over the `UNSIGNALED_QLOO_BASELINE`.
+Confirmatory cases for the formal decision are:
+
+- Pair 2 × Istanbul;
+- Pair 2 × London;
+- Pair 3 × Istanbul;
+- Pair 3 × London.
+
+Pair 1 × Istanbul is prior pilot evidence and does not count toward the confirmatory minimum. Pair 1 × London may be recorded as supplementary generalization evidence but does not replace a failed confirmatory case.
+
+`SUPPORTED_FOR_NEXT_STAGE` requires at least 3 of the 4 confirmatory cases to have both:
+- operationally positive semantic evidence under the 3-of-4 assignment-and-taste rule; and
+- operationally positive baseline advantage under the rule above.
+
+Those positive cases must collectively include both destination cities and both pre-registered profile pairs (Pair 2 and Pair 3).
+
+This aggregate rule is an operational preregistration criterion, not a statistical-significance claim.
 
 The final decision must consider consistency across profile pairs, cities, baseline comparisons, and blind semantic evaluation rather than a single metric.
 
