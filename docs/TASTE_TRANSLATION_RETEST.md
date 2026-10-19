@@ -1,6 +1,6 @@
 # Taste Translation Retest Protocol
 
-Status: PRE-REGISTERED — EXECUTION HARNESS PENDING
+Status: PRE-REGISTERED — READY FOR EXECUTION
 
 This document defines the next validation gate for TastePassport.
 
