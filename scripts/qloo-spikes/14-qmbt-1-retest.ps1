@@ -261,18 +261,29 @@ function Invoke-QlooCategoryRetrieval {
         $Profile,
         $Category,
         [string]$City,
-        [int]$Take
+        [int]$Take,
+        [switch]$Unsignaled
     )
 
-    $seedIds = Get-ProfileSeedIds -Profile $Profile
-    $seedParam = $seedIds -join ","
     $tagParam = [uri]::EscapeDataString([string]$Category.Tag)
     $cityParam = [uri]::EscapeDataString($City)
 
     $url = (
         "$baseUrl/v2/insights" +
-        "?filter.type=urn%3Aentity%3Aplace" +
-        "&signal.interests.entities=$seedParam" +
+        "?filter.type=urn%3Aentity%3Aplace"
+    )
+
+    if (-not $Unsignaled) {
+        if ($null -eq $Profile) {
+            throw "Profile is required for signaled category retrieval."
+        }
+
+        $seedIds = Get-ProfileSeedIds -Profile $Profile
+        $seedParam = $seedIds -join ","
+        $url += "&signal.interests.entities=$seedParam"
+    }
+
+    $url += (
         "&filter.tags=$tagParam" +
         "&filter.location.query=$cityParam" +
         "&filter.location.radius=0" +
@@ -284,10 +295,10 @@ function Invoke-QlooCategoryRetrieval {
 
     return [PSCustomObject]@{
         RequestUrl = $url
+        Unsignaled = [bool]$Unsignaled
         Results    = $results
     }
 }
-
 function Invoke-QlooFixedPool {
     param(
         $Profile,
@@ -649,12 +660,110 @@ function Get-FixedPoolComparison {
     }
 }
 
+function New-QmbtQuotaList {
+    param(
+        [hashtable]$RankingsByCategory,
+        [array]$Categories,
+        [int]$QuotaPerCategory = 3
+    )
+
+    if ($QuotaPerCategory -ne 3) {
+        throw "QMBT-1 requires exactly 3 entities per category."
+    }
+
+    $expectedOrder = @(
+        "art_gallery",
+        "book_store",
+        "museum",
+        "park",
+        "restaurant",
+        "shopping_mall"
+    )
+
+    $actualOrder = @($Categories | ForEach-Object { [string]$_.Id })
+
+    if (($actualOrder -join "|") -ne ($expectedOrder -join "|")) {
+        throw "QMBT-1 category priority/order differs from the frozen protocol."
+    }
+
+    $usedEntityIds = @{}
+    $finalList = @()
+    $categoryCounts = @()
+
+    foreach ($category in $Categories) {
+        $categoryId = [string]$category.Id
+        $categoryName = [string]$category.Name
+
+        if (-not $RankingsByCategory.ContainsKey($categoryId)) {
+            throw "Missing ranking for QMBT-1 category: $categoryId"
+        }
+
+        $ranking = @($RankingsByCategory[$categoryId])
+        $selected = @()
+
+        foreach ($item in $ranking) {
+            $entityId = [string]$item.EntityId
+
+            if (-not $entityId) {
+                continue
+            }
+
+            if ($usedEntityIds.ContainsKey($entityId)) {
+                continue
+            }
+
+            $selected += [PSCustomObject]@{
+                CategoryId   = $categoryId
+                CategoryName = $categoryName
+                CategoryRank = [int]$item.Rank
+                EntityId     = $entityId
+                Name         = $item.Name
+                Affinity     = $item.Affinity
+                Address      = $item.Address
+                PrimaryGenre = $item.PrimaryGenre
+                Tags         = $item.Tags
+            }
+
+            $usedEntityIds[$entityId] = $true
+
+            if ($selected.Count -eq $QuotaPerCategory) {
+                break
+            }
+        }
+
+        if ($selected.Count -ne $QuotaPerCategory) {
+            throw "QMBT-1 category '$categoryId' could not fill its quota of $QuotaPerCategory unique entities after cross-category deduplication/backfill. Selected: $($selected.Count)."
+        }
+
+        $finalList += $selected
+
+        $categoryCounts += [PSCustomObject]@{
+            CategoryId = $categoryId
+            Count      = $selected.Count
+        }
+    }
+
+    $expectedTotal = $Categories.Count * $QuotaPerCategory
+
+    if ($finalList.Count -ne $expectedTotal) {
+        throw "QMBT-1 final list expected $expectedTotal entities; produced $($finalList.Count)."
+    }
+
+    if (@($finalList.EntityId | Select-Object -Unique).Count -ne $expectedTotal) {
+        throw "QMBT-1 final list contains duplicate entity IDs."
+    }
+
+    return [PSCustomObject]@{
+        Places         = $finalList
+        CategoryCounts = $categoryCounts
+        TotalCount     = $finalList.Count
+    }
+}
 function Select-BlindPlaceFields {
     param([array]$Items)
 
     return @(
         $Items |
-        Select-Object -First 10 |
         ForEach-Object {
             [PSCustomObject]@{
                 Name    = $_.Name
