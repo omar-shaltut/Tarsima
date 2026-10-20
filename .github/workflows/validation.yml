@@ -1,4 +1,4 @@
-﻿name: Repository Validation
+name: Repository Validation
 
 on:
   push:
@@ -59,8 +59,8 @@ jobs:
 
           $checks = @(
               [PSCustomObject]@{
-                  Name = "Safety lock present"
-                  Pass = ($text -match 'QMBT-1 HARNESS IS A SCAFFOLD ONLY')
+                  Name = "Execution unlock is explicit"
+                  Pass = ($text -match 'QMBT-1 EXECUTION UNLOCKED AFTER VALIDATION GATE')
               },
               [PSCustomObject]@{
                   Name = "CategoryTake frozen at 3"

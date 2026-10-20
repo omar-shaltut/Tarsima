@@ -22,7 +22,7 @@ if ($CategoryTake -ne 3) {
 }
 
 
-throw "QMBT-1 HARNESS IS A SCAFFOLD ONLY. Execution logic has not been implemented yet."
+# QMBT-1 EXECUTION UNLOCKED AFTER VALIDATION GATE
 $runId = (Get-Date).ToUniversalTime().ToString("yyyyMMddTHHmmssZ")
 
 if ([System.IO.Path]::IsPathRooted($OutputRoot)) {
