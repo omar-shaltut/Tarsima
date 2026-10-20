@@ -700,6 +700,7 @@ function New-QmbtQuotaList {
 
         $ranking = @($RankingsByCategory[$categoryId])
         $selected = @()
+        $duplicatesSkipped = 0
 
         foreach ($item in $ranking) {
             $entityId = [string]$item.EntityId
@@ -709,6 +710,7 @@ function New-QmbtQuotaList {
             }
 
             if ($usedEntityIds.ContainsKey($entityId)) {
+                $duplicatesSkipped++
                 continue
             }
 
@@ -737,9 +739,17 @@ function New-QmbtQuotaList {
 
         $finalList += $selected
 
+        $backfillSelections = @(
+            $selected |
+            Where-Object { $_.CategoryRank -gt $QuotaPerCategory }
+        ).Count
+
+
         $categoryCounts += [PSCustomObject]@{
             CategoryId = $categoryId
             Count      = $selected.Count
+            CrossCategoryDuplicatesSkipped = $duplicatesSkipped
+            BackfillSelections             = $backfillSelections
         }
     }
 
@@ -753,10 +763,22 @@ function New-QmbtQuotaList {
         throw "QMBT-1 final list contains duplicate entity IDs."
     }
 
+    $totalDuplicateSkips = [int]((
+        $categoryCounts |
+        Measure-Object -Property CrossCategoryDuplicatesSkipped -Sum
+    ).Sum)
+
+    $totalBackfillSelections = [int]((
+        $categoryCounts |
+        Measure-Object -Property BackfillSelections -Sum
+    ).Sum)
+
     return [PSCustomObject]@{
         Places         = $finalList
         CategoryCounts = $categoryCounts
         TotalCount     = $finalList.Count
+        DuplicateSkipCount     = $totalDuplicateSkips
+        BackfillSelectionCount = $totalBackfillSelections
     }
 }
 function Select-BlindPlaceFields {
