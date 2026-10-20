@@ -63,3 +63,80 @@ A protocol amendment may be designed using deterministic per-entity scoring, fol
 
 FAIL:
 Do not attempt another fixed-pool QMBT formulation based on `filter.results.entities`; reconsider the retrieval/scoring strategy before further confirmatory testing.
+
+## Pre-execution Amendment 1 — Complete Fixed-Pool Ranking Viability
+
+Status: EFFECTIVE BEFORE ANY DIAGNOSTIC API CALL
+
+### Rationale
+
+The original diagnostic could produce a PASS after proving single-entity
+presence and personalized affinity without proving that the
+UNSIGNALED_QLOO_BASELINE can rank the same frozen entity pool.
+
+QMBT requires complete rankings for Profile E, Profile F, and the
+unsignaled baseline over the same entity IDs. Therefore, entity presence
+alone is insufficient.
+
+### Effective diagnostic sample
+
+Use Istanbul / `urn:tag:category:place:art_gallery`.
+
+Retrieve Top 3 normally for:
+
+1. Profile E
+2. Profile F
+3. UNSIGNALED_QLOO_BASELINE
+
+The diagnostic sample is the full de-duplicated union of all returned
+entity IDs, preserving source order:
+
+1. E ranking order
+2. F ranking order
+3. baseline ranking order
+
+Do not reduce the union to one entity per source condition.
+
+### Test A — Personalized per-entity scoring
+
+For every entity in the frozen diagnostic sample:
+
+- request that entity individually under Profile E;
+- request that entity individually under Profile F;
+- repeat every request once.
+
+PASS requirements:
+
+1. exactly one entity is returned;
+2. returned ID exactly equals requested ID;
+3. numeric affinity is present;
+4. the complete entity set is scoreable under both profiles;
+5. ranking derived from affinity is reproducible across the two repeats,
+   using EntityId ascending only as a deterministic tie-breaker.
+
+### Test B — Unsignaled baseline fixed-pool ranking
+
+Submit the complete frozen diagnostic sample in one
+`filter.results.entities` request with no taste signal.
+
+Repeat the request once.
+
+PASS requirements:
+
+1. every frozen entity is returned;
+2. no extra entity is returned;
+3. returned IDs exactly equal the frozen sample set;
+4. result ordering is identical across both repeats.
+
+No missing entity may be assigned an invented zero score or synthetic rank.
+
+### Revised diagnostic PASS
+
+The diagnostic passes only if both Test A and Test B pass.
+
+A PASS establishes technical viability for a separately pre-registered
+QMBT protocol amendment. It is not confirmatory product evidence.
+
+Any failure means the current fixed-pool strategy based on
+`filter.results.entities` is not technically validated and QMBT must not
+be rerun using that strategy.
