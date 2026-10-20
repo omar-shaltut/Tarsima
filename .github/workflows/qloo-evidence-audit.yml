@@ -1,4 +1,4 @@
-﻿name: Qloo Evidence Audit
+name: Qloo Evidence Audit
 
 on:
   workflow_dispatch:
