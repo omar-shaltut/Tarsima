@@ -1,6 +1,7 @@
 ﻿# Qloo fixed-pool API semantics diagnostic.
 # NOT confirmatory evidence.
 # Protocol: docs/QLOO_FIXED_POOL_DIAGNOSTIC.md
+# Includes Pre-execution Amendment 1.
 
 param(
     [string]$City = "Istanbul",
@@ -18,7 +19,7 @@ if (-not $headers -or -not $headers["X-Api-Key"]) {
 }
 
 if ($Take -ne 3) {
-    throw "Diagnostic sample retrieval is frozen at Take=3."
+    throw "Diagnostic retrieval is frozen at Take=3."
 }
 
 if (-not $Execute) {
@@ -67,6 +68,7 @@ function Convert-QlooEntities {
 
 function Invoke-SampleRetrieval {
     param(
+        [Parameter(Mandatory)]
         [string]$Condition
     )
 
@@ -102,27 +104,30 @@ function Invoke-SampleRetrieval {
 
 function Invoke-SingleEntityScore {
     param(
+        [Parameter(Mandatory)]
         [string]$EntityId,
+
+        [Parameter(Mandatory)]
+        [ValidateSet("E", "F")]
         [string]$Condition,
+
+        [Parameter(Mandatory)]
+        [ValidateSet(1, 2)]
         [int]$Repeat
     )
 
     $cityParam = [uri]::EscapeDataString($City)
+    $seedParam = $profiles[$Condition] -join ","
 
     $url = (
         "$baseUrl/v2/insights" +
         "?filter.type=urn%3Aentity%3Aplace" +
         "&filter.results.entities=$EntityId" +
         "&filter.location.query=$cityParam" +
-        "&filter.location.radius=0"
+        "&filter.location.radius=0" +
+        "&signal.interests.entities=$seedParam" +
+        "&take=1"
     )
-
-    if ($Condition -ne "UNSIGNALED_QLOO_BASELINE") {
-        $seedParam = $profiles[$Condition] -join ","
-        $url += "&signal.interests.entities=$seedParam"
-    }
-
-    $url += "&take=1"
 
     $response = Invoke-RestMethod `
         -Uri $url `
@@ -130,9 +135,9 @@ function Invoke-SingleEntityScore {
         -Method Get
 
     $results = @(Convert-QlooEntities -Response $response)
-    $returned = $null
 
-    if ($results.Count -gt 0) {
+    $returned = $null
+    if ($results.Count -eq 1) {
         $returned = $results[0]
     }
 
@@ -152,6 +157,79 @@ function Invoke-SingleEntityScore {
     }
 }
 
+function Invoke-BaselineFixedPool {
+    param(
+        [Parameter(Mandatory)]
+        [string[]]$EntityIds,
+
+        [Parameter(Mandatory)]
+        [ValidateSet(1, 2)]
+        [int]$Repeat
+    )
+
+    $cityParam = [uri]::EscapeDataString($City)
+    $poolParam = $EntityIds -join ","
+
+    $url = (
+        "$baseUrl/v2/insights" +
+        "?filter.type=urn%3Aentity%3Aplace" +
+        "&filter.results.entities=$poolParam" +
+        "&filter.location.query=$cityParam" +
+        "&filter.location.radius=0" +
+        "&take=$($EntityIds.Count)"
+    )
+
+    $response = Invoke-RestMethod `
+        -Uri $url `
+        -Headers $headers `
+        -Method Get
+
+    $results = @(Convert-QlooEntities -Response $response)
+
+    return [PSCustomObject]@{
+        Repeat      = $Repeat
+        RequestUrl  = $url
+        Results     = $results
+        ReturnedIds = @($results | ForEach-Object { $_.EntityId })
+    }
+}
+
+function Test-SameEntitySet {
+    param(
+        [string[]]$Expected,
+        [string[]]$Actual
+    )
+
+    if ($Expected.Count -ne $Actual.Count) {
+        return $false
+    }
+
+    $expectedSorted = @($Expected | Sort-Object)
+    $actualSorted = @($Actual | Sort-Object)
+
+    return (($expectedSorted -join "|") -eq ($actualSorted -join "|"))
+}
+
+function Get-AffinityRanking {
+    param(
+        [object[]]$Observations,
+        [string]$Condition,
+        [int]$Repeat
+    )
+
+    return @(
+        $Observations |
+        Where-Object {
+            $_.Condition -eq $Condition -and
+            $_.Repeat -eq $Repeat
+        } |
+        Sort-Object `
+            @{ Expression = "Affinity"; Descending = $true },
+            @{ Expression = "RequestedEntityId"; Descending = $false } |
+        ForEach-Object { $_.RequestedEntityId }
+    )
+}
+
 $runId = (Get-Date).ToUniversalTime().ToString("yyyyMMddTHHmmssZ")
 
 if ([System.IO.Path]::IsPathRooted($OutputRoot)) {
@@ -163,60 +241,67 @@ if ([System.IO.Path]::IsPathRooted($OutputRoot)) {
 $runDir = Join-Path $resolvedOutputRoot $runId
 New-Item -ItemType Directory -Force -Path $runDir | Out-Null
 
-Write-Host "Collecting diagnostic sample..."
+Write-Host "Collecting frozen diagnostic sample..."
 
 $retrievalE = Invoke-SampleRetrieval -Condition "E"
 $retrievalF = Invoke-SampleRetrieval -Condition "F"
-$retrievalBaseline = Invoke-SampleRetrieval -Condition "UNSIGNALED_QLOO_BASELINE"
+$retrievalBaseline = Invoke-SampleRetrieval `
+    -Condition "UNSIGNALED_QLOO_BASELINE"
 
-foreach ($retrieval in @($retrievalE, $retrievalF, $retrievalBaseline)) {
+$retrievals = @(
+    $retrievalE,
+    $retrievalF,
+    $retrievalBaseline
+)
+
+foreach ($retrieval in $retrievals) {
     if ($retrieval.Results.Count -ne $Take) {
-        throw "Diagnostic sample retrieval for $($retrieval.Condition) returned $($retrieval.Results.Count), expected $Take."
+        throw (
+            "Diagnostic sample retrieval for {0} returned {1}, expected {2}." -f
+            $retrieval.Condition,
+            $retrieval.Results.Count,
+            $Take
+        )
     }
 }
 
-# Deterministic sample:
-# first unique entity from E retrieval,
-# then first unique entity from F retrieval,
-# then first unique entity from baseline retrieval.
-$used = @{}
+# Full de-duplicated union preserving source order:
+# E, then F, then UNSIGNALED_QLOO_BASELINE.
+$seenIds = @{}
 $sample = @()
 
-foreach ($retrieval in @($retrievalE, $retrievalF, $retrievalBaseline)) {
-    $selected = $null
-
+foreach ($retrieval in $retrievals) {
     foreach ($item in $retrieval.Results) {
-        if (-not $used.ContainsKey($item.EntityId)) {
-            $selected = $item
-            break
+        if (-not $seenIds.ContainsKey($item.EntityId)) {
+            $seenIds[$item.EntityId] = $true
+
+            $sample += [PSCustomObject]@{
+                SourceCondition = $retrieval.Condition
+                SourceRank      = $item.Rank
+                EntityId        = $item.EntityId
+                Name            = $item.Name
+            }
         }
-    }
-
-    if ($null -eq $selected) {
-        throw "Could not construct 3-entity unique diagnostic sample."
-    }
-
-    $used[$selected.EntityId] = $true
-
-    $sample += [PSCustomObject]@{
-        SourceCondition = $retrieval.Condition
-        EntityId        = $selected.EntityId
-        Name            = $selected.Name
     }
 }
 
-Write-Host "Testing single-entity scoring semantics..."
-
-$conditions = @(
-    "E",
-    "F",
-    "UNSIGNALED_QLOO_BASELINE"
+$sampleIds = @(
+    $sample |
+    ForEach-Object { $_.EntityId }
 )
+
+if ($sampleIds.Count -lt 3 -or $sampleIds.Count -gt 9) {
+    throw "Frozen diagnostic union must contain between 3 and 9 unique entities."
+}
+
+Write-Host "Frozen diagnostic pool: $($sampleIds.Count) unique entities"
+
+Write-Host "TEST A: personalized per-entity scoring..."
 
 $observations = @()
 
 foreach ($entity in $sample) {
-    foreach ($condition in $conditions) {
+    foreach ($condition in @("E", "F")) {
         foreach ($repeat in @(1, 2)) {
             Write-Host (
                 "  {0} / {1} / repeat {2}" -f
@@ -238,21 +323,87 @@ $identityFailures = @(
     Where-Object { -not $_.IdentityMatch }
 )
 
-$personalizedAffinityFailures = @(
+$affinityFailures = @(
     $observations |
-    Where-Object {
-        $_.Condition -in @("E", "F") -and
-        $null -eq $_.Affinity
-    }
+    Where-Object { $null -eq $_.Affinity }
 )
 
-$decision = if (
+$rankingChecks = @()
+
+foreach ($condition in @("E", "F")) {
+    $rank1 = @(
+        Get-AffinityRanking `
+            -Observations $observations `
+            -Condition $condition `
+            -Repeat 1
+    )
+
+    $rank2 = @(
+        Get-AffinityRanking `
+            -Observations $observations `
+            -Condition $condition `
+            -Repeat 2
+    )
+
+    $sameRanking = (
+        $rank1.Count -eq $sampleIds.Count -and
+        $rank2.Count -eq $sampleIds.Count -and
+        (($rank1 -join "|") -eq ($rank2 -join "|"))
+    )
+
+    $rankingChecks += [PSCustomObject]@{
+        Condition       = $condition
+        Repeat1Ranking  = $rank1
+        Repeat2Ranking  = $rank2
+        RankingStable   = $sameRanking
+    }
+}
+
+$personalizedRankingFailures = @(
+    $rankingChecks |
+    Where-Object { -not $_.RankingStable }
+)
+
+$testAPass = (
     $identityFailures.Count -eq 0 -and
-    $personalizedAffinityFailures.Count -eq 0
-) {
-    "PASS_SINGLE_ENTITY_FIXED_POOL_VIABLE"
+    $affinityFailures.Count -eq 0 -and
+    $personalizedRankingFailures.Count -eq 0
+)
+
+Write-Host "TEST B: unsignaled baseline fixed-pool ranking..."
+
+$baseline1 = Invoke-BaselineFixedPool `
+    -EntityIds $sampleIds `
+    -Repeat 1
+
+$baseline2 = Invoke-BaselineFixedPool `
+    -EntityIds $sampleIds `
+    -Repeat 2
+
+$baseline1ExactSet = Test-SameEntitySet `
+    -Expected $sampleIds `
+    -Actual $baseline1.ReturnedIds
+
+$baseline2ExactSet = Test-SameEntitySet `
+    -Expected $sampleIds `
+    -Actual $baseline2.ReturnedIds
+
+$baselineStableOrder = (
+    $baseline1.ReturnedIds.Count -eq $sampleIds.Count -and
+    $baseline2.ReturnedIds.Count -eq $sampleIds.Count -and
+    (($baseline1.ReturnedIds -join "|") -eq ($baseline2.ReturnedIds -join "|"))
+)
+
+$testBPass = (
+    $baseline1ExactSet -and
+    $baseline2ExactSet -and
+    $baselineStableOrder
+)
+
+$decision = if ($testAPass -and $testBPass) {
+    "PASS_COMPLETE_FIXED_POOL_RANKING_VIABLE"
 } else {
-    "FAIL_SINGLE_ENTITY_FIXED_POOL_NOT_VIABLE"
+    "FAIL_CURRENT_FIXED_POOL_STRATEGY_NOT_VALIDATED"
 }
 
 $gitCommit = $null
@@ -264,26 +415,39 @@ try {
 }
 
 $record = [PSCustomObject]@{
-    RunId                         = $runId
-    Protocol                      = "QLOO_FIXED_POOL_DIAGNOSTIC"
-    EvidenceClass                 = "DIAGNOSTIC_NOT_CONFIRMATORY"
-    GitCommit                     = $gitCommit
-    City                          = $City
-    CategoryTag                   = $CategoryTag
-    SampleRetrievalTake           = $Take
-    Sample                        = $sample
-    SampleRetrievals              = @(
-        $retrievalE,
-        $retrievalF,
-        $retrievalBaseline
-    )
-    Observations                  = $observations
-    IdentityFailureCount          = $identityFailures.Count
-    PersonalizedAffinityFailures = $personalizedAffinityFailures.Count
-    Decision                      = $decision
+    RunId                    = $runId
+    Protocol                 = "QLOO_FIXED_POOL_DIAGNOSTIC"
+    ProtocolAmendment        = "PRE_EXECUTION_AMENDMENT_1"
+    EvidenceClass            = "DIAGNOSTIC_NOT_CONFIRMATORY"
+    GitCommit                = $gitCommit
+    City                     = $City
+    CategoryTag              = $CategoryTag
+    RetrievalTake            = $Take
+    FrozenSampleCount        = $sampleIds.Count
+    FrozenSample             = $sample
+    SampleRetrievals         = $retrievals
+    TestA = [PSCustomObject]@{
+        Name                   = "PERSONALIZED_PER_ENTITY_SCORING"
+        Pass                   = $testAPass
+        IdentityFailureCount   = $identityFailures.Count
+        AffinityFailureCount   = $affinityFailures.Count
+        RankingFailureCount    = $personalizedRankingFailures.Count
+        RankingChecks          = $rankingChecks
+        Observations           = $observations
+    }
+    TestB = [PSCustomObject]@{
+        Name                   = "UNSIGNALED_BASELINE_FIXED_POOL"
+        Pass                   = $testBPass
+        Repeat1ExactEntitySet  = $baseline1ExactSet
+        Repeat2ExactEntitySet  = $baseline2ExactSet
+        StableOrdering         = $baselineStableOrder
+        Repeat1                = $baseline1
+        Repeat2                = $baseline2
+    }
+    Decision                 = $decision
 }
 
-$json = $record | ConvertTo-Json -Depth 12
+$json = $record | ConvertTo-Json -Depth 14
 
 [System.IO.File]::WriteAllText(
     (Join-Path $runDir "diagnostic-result.json"),
@@ -294,6 +458,7 @@ $json = $record | ConvertTo-Json -Depth 12
 Write-Host ""
 Write-Host "DIAGNOSTIC COMPLETE"
 Write-Host "Run directory: $runDir"
+Write-Host "Frozen pool size: $($sampleIds.Count)"
+Write-Host "Test A personalized scoring: $testAPass"
+Write-Host "Test B baseline fixed pool: $testBPass"
 Write-Host "Decision: $decision"
-Write-Host "Identity failures: $($identityFailures.Count)"
-Write-Host "Personalized affinity failures: $($personalizedAffinityFailures.Count)"
