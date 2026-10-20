@@ -636,7 +636,7 @@ function Get-RetrievalComparison {
         SharedCount     = $shared.Count
         UnionSize       = $union.Count
         Jaccard         = Get-Jaccard -A $A -B $B
-        Top7Overlap     = Get-TopKOverlap -A $A -B $B -K 7
+        Top3Overlap     = Get-TopKOverlap -A $A -B $B -K 3
     }
 }
 
@@ -651,7 +651,7 @@ function Get-FixedPoolComparison {
 
     return [PSCustomObject]@{
         PoolSize             = $PoolSize
-        Top10Overlap         = Get-TopKOverlap -A $A -B $B -K 10
+        Top3Overlap          = Get-TopKOverlap -A $A -B $B -K 3
         SpearmanRank         = Get-SpearmanCorrelation -A $A -B $B
         PearsonAffinity      = $affinity.PearsonAffinity
         SharedAffinityCount  = $affinity.SharedAffinityCount
@@ -942,7 +942,7 @@ function Get-BaselineRankingComparison {
 
     return [PSCustomObject]@{
         SharedCount       = $sharedIds.Count
-        Top10Overlap      = Get-TopKOverlap -A $Personalized -B $Baseline -K 10
+        Top3Overlap       = Get-TopKOverlap -A $Personalized -B $Baseline -K 3
         SpearmanRank      = Get-SpearmanCorrelation -A $Personalized -B $Baseline
         MeanAbsRankDelta  = if ($rankChanges.Count -gt 0) {
             [double]((
@@ -980,9 +980,15 @@ function Invoke-FormalRetestCase {
 
     $retrievalRecords = @()
     $retrievalMetrics = @()
-    $poolIds = @()
+    $categoryRecords = @()
+
+    $rankingsA = @{}
+    $rankingsB = @{}
+    $rankingsBaseline = @{}
 
     foreach ($category in $categories) {
+        $categoryId = [string]$category.Id
+
         Write-Host ("  Retrieval {0} / {1}" -f $category.Name, $profileA.ProfileId)
         $retrievalA = Invoke-QlooCategoryRetrieval `
             -Profile $profileA `
@@ -997,172 +1003,311 @@ function Invoke-FormalRetestCase {
             -City $City `
             -Take $CategoryTake
 
-        if ($retrievalA.Results.Count -ne $CategoryTake) {
-            throw "$caseId / $($category.Id) / $($profileA.ProfileId): expected $CategoryTake candidates; received $($retrievalA.Results.Count)."
-        }
+        Write-Host ("  Retrieval {0} / UNSIGNALED_QLOO_BASELINE" -f $category.Name)
+        $retrievalBaseline = Invoke-QlooCategoryRetrieval `
+            -Profile $null `
+            -Category $category `
+            -City $City `
+            -Take $CategoryTake `
+            -Unsignaled
 
-        if ($retrievalB.Results.Count -ne $CategoryTake) {
-            throw "$caseId / $($category.Id) / $($profileB.ProfileId): expected $CategoryTake candidates; received $($retrievalB.Results.Count)."
+        foreach ($retrievalCheck in @(
+            [PSCustomObject]@{
+                Label   = $profileA.ProfileId
+                Results = $retrievalA.Results
+            },
+            [PSCustomObject]@{
+                Label   = $profileB.ProfileId
+                Results = $retrievalB.Results
+            },
+            [PSCustomObject]@{
+                Label   = "UNSIGNALED_QLOO_BASELINE"
+                Results = $retrievalBaseline.Results
+            }
+        )) {
+            if ($retrievalCheck.Results.Count -ne $CategoryTake) {
+                throw "$caseId / $categoryId / $($retrievalCheck.Label): expected $CategoryTake candidates; received $($retrievalCheck.Results.Count)."
+            }
+
+            $uniqueRetrievedIds = @(
+                Get-EntityIds -Items $retrievalCheck.Results |
+                Where-Object { $_ } |
+                Select-Object -Unique
+            )
+
+            if ($uniqueRetrievedIds.Count -ne $CategoryTake) {
+                throw "$caseId / $categoryId / $($retrievalCheck.Label): retrieval did not contain exactly $CategoryTake unique entity IDs."
+            }
         }
 
         $retrievalRecords += [PSCustomObject]@{
-            CategoryId = $category.Id
+            CategoryId   = $categoryId
             CategoryName = $category.Name
-            ProfileId = $profileA.ProfileId
-            RequestUrl = $retrievalA.RequestUrl
-            Results = $retrievalA.Results
+            Condition    = $profileA.ProfileId
+            RequestUrl   = $retrievalA.RequestUrl
+            Results      = $retrievalA.Results
         }
 
         $retrievalRecords += [PSCustomObject]@{
-            CategoryId = $category.Id
+            CategoryId   = $categoryId
             CategoryName = $category.Name
-            ProfileId = $profileB.ProfileId
-            RequestUrl = $retrievalB.RequestUrl
-            Results = $retrievalB.Results
+            Condition    = $profileB.ProfileId
+            RequestUrl   = $retrievalB.RequestUrl
+            Results      = $retrievalB.Results
         }
 
-        $retrievalMetrics += Get-RetrievalComparison `
-            -A $retrievalA.Results `
-            -B $retrievalB.Results `
-            -CategoryId $category.Id
+        $retrievalRecords += [PSCustomObject]@{
+            CategoryId   = $categoryId
+            CategoryName = $category.Name
+            Condition    = "UNSIGNALED_QLOO_BASELINE"
+            RequestUrl   = $retrievalBaseline.RequestUrl
+            Results      = $retrievalBaseline.Results
+        }
 
-        $poolIds += @(Get-EntityIds -Items $retrievalA.Results)
-        $poolIds += @(Get-EntityIds -Items $retrievalB.Results)
+        $retrievalMetrics += [PSCustomObject]@{
+            CategoryId = $categoryId
+
+            ProfileA_vs_ProfileB = Get-RetrievalComparison `
+                -A $retrievalA.Results `
+                -B $retrievalB.Results `
+                -CategoryId $categoryId
+
+            ProfileA_vs_Baseline = Get-RetrievalComparison `
+                -A $retrievalA.Results `
+                -B $retrievalBaseline.Results `
+                -CategoryId $categoryId
+
+            ProfileB_vs_Baseline = Get-RetrievalComparison `
+                -A $retrievalB.Results `
+                -B $retrievalBaseline.Results `
+                -CategoryId $categoryId
+        }
+
+        $poolIds = @(
+            @(
+                Get-EntityIds -Items $retrievalA.Results
+                Get-EntityIds -Items $retrievalB.Results
+                Get-EntityIds -Items $retrievalBaseline.Results
+            ) |
+            Where-Object { $_ } |
+            Select-Object -Unique
+        )
+
+        if ($poolIds.Count -lt $CategoryTake) {
+            throw "$caseId / ${categoryId}: frozen category pool has fewer than $CategoryTake unique candidates."
+        }
+
+        if ($poolIds.Count -gt 9) {
+            throw "$caseId / ${categoryId}: frozen category pool exceeds QMBT-1 maximum of 9 candidates: $($poolIds.Count)."
+        }
+
+        Write-Host ("  Frozen category pool {0}: {1}" -f $categoryId, $poolIds.Count)
+
+        $fixedA = Invoke-QlooFixedPool `
+            -Profile $profileA `
+            -EntityIds $poolIds `
+            -City $City
+
+        $fixedB = Invoke-QlooFixedPool `
+            -Profile $profileB `
+            -EntityIds $poolIds `
+            -City $City
+
+        $fixedBaseline = Invoke-QlooFixedPool `
+            -Profile $null `
+            -EntityIds $poolIds `
+            -City $City `
+            -Unsignaled
+
+        if (-not (Test-SameEntitySet -ExpectedIds $poolIds -ActualItems $fixedA.Results)) {
+            throw "$caseId / ${categoryId}: personalized fixed-pool response for $($profileA.ProfileId) differs from frozen category pool."
+        }
+
+        if (-not (Test-SameEntitySet -ExpectedIds $poolIds -ActualItems $fixedB.Results)) {
+            throw "$caseId / ${categoryId}: personalized fixed-pool response for $($profileB.ProfileId) differs from frozen category pool."
+        }
+
+        if (-not (Test-SameEntitySet -ExpectedIds $poolIds -ActualItems $fixedBaseline.Results)) {
+            throw "$caseId / ${categoryId}: unsignaled fixed-pool response differs from frozen category pool."
+        }
+
+        $missingAffinityA = @(
+            $fixedA.Results |
+            Where-Object { $null -eq $_.Affinity }
+        ).Count
+
+        $missingAffinityB = @(
+            $fixedB.Results |
+            Where-Object { $null -eq $_.Affinity }
+        ).Count
+
+        if ($missingAffinityA -gt 0 -or $missingAffinityB -gt 0) {
+            throw "$caseId / ${categoryId}: personalized fixed-pool scoring returned missing affinity values."
+        }
+
+        $fixedMetrics = Get-FixedPoolComparison `
+            -A $fixedA.Results `
+            -B $fixedB.Results `
+            -PoolSize $poolIds.Count
+
+        $baselineMetricsA = Get-BaselineRankingComparison `
+            -Personalized $fixedA.Results `
+            -Baseline $fixedBaseline.Results
+
+        $baselineMetricsB = Get-BaselineRankingComparison `
+            -Personalized $fixedB.Results `
+            -Baseline $fixedBaseline.Results
+
+        $rankingsA[$categoryId] = @($fixedA.Results)
+        $rankingsB[$categoryId] = @($fixedB.Results)
+        $rankingsBaseline[$categoryId] = @($fixedBaseline.Results)
+
+        $categoryRecords += [PSCustomObject]@{
+            CategoryId          = $categoryId
+            CategoryName        = $category.Name
+            CategoryTag         = $category.Tag
+            FrozenPoolEntityIds = $poolIds
+            FrozenPoolSize      = $poolIds.Count
+
+            Retrieval = [PSCustomObject]@{
+                ProfileA = [PSCustomObject]@{
+                    ProfileId  = $profileA.ProfileId
+                    RequestUrl = $retrievalA.RequestUrl
+                    Results    = $retrievalA.Results
+                }
+
+                ProfileB = [PSCustomObject]@{
+                    ProfileId  = $profileB.ProfileId
+                    RequestUrl = $retrievalB.RequestUrl
+                    Results    = $retrievalB.Results
+                }
+
+                Baseline = [PSCustomObject]@{
+                    Condition  = "UNSIGNALED_QLOO_BASELINE"
+                    RequestUrl = $retrievalBaseline.RequestUrl
+                    Results    = $retrievalBaseline.Results
+                }
+            }
+
+            FixedPool = [PSCustomObject]@{
+                ProfileA = [PSCustomObject]@{
+                    ProfileId  = $profileA.ProfileId
+                    RequestUrl = $fixedA.RequestUrl
+                    Results    = $fixedA.Results
+                }
+
+                ProfileB = [PSCustomObject]@{
+                    ProfileId  = $profileB.ProfileId
+                    RequestUrl = $fixedB.RequestUrl
+                    Results    = $fixedB.Results
+                }
+
+                Baseline = [PSCustomObject]@{
+                    Condition  = $fixedBaseline.Condition
+                    RequestUrl = $fixedBaseline.RequestUrl
+                    Results    = $fixedBaseline.Results
+                }
+            }
+
+            FixedPoolMetrics = $fixedMetrics
+
+            BaselineMetrics = [PSCustomObject]@{
+                ProfileA = [PSCustomObject]@{
+                    ProfileId = $profileA.ProfileId
+                    Metrics   = $baselineMetricsA
+                }
+
+                ProfileB = [PSCustomObject]@{
+                    ProfileId = $profileB.ProfileId
+                    Metrics   = $baselineMetricsB
+                }
+            }
+        }
     }
 
-    $poolIds = @(
-        $poolIds |
-        Where-Object { $_ } |
-        Select-Object -Unique
-    )
+    $finalA = New-QmbtQuotaList `
+        -RankingsByCategory $rankingsA `
+        -Categories $categories `
+        -QuotaPerCategory 3
 
-    if ($poolIds.Count -lt 10) {
-        throw "${caseId}: frozen candidate pool has fewer than 10 candidates: $($poolIds.Count)."
+    $finalB = New-QmbtQuotaList `
+        -RankingsByCategory $rankingsB `
+        -Categories $categories `
+        -QuotaPerCategory 3
+
+    $finalBaseline = New-QmbtQuotaList `
+        -RankingsByCategory $rankingsBaseline `
+        -Categories $categories `
+        -QuotaPerCategory 3
+
+    if (
+        $finalA.TotalCount -ne 18 -or
+        $finalB.TotalCount -ne 18 -or
+        $finalBaseline.TotalCount -ne 18
+    ) {
+        throw "${caseId}: QMBT-1 final lists must each contain exactly 18 unique places."
     }
-
-    if ($poolIds.Count -gt 42) {
-        throw "${caseId}: candidate pool exceeds theoretical pre-registered maximum of 42: $($poolIds.Count)."
-    }
-
-    Write-Host ("  Frozen pool size: {0}" -f $poolIds.Count)
-
-    $fixedA = Invoke-QlooFixedPool `
-        -Profile $profileA `
-        -EntityIds $poolIds `
-        -City $City
-
-    $fixedB = Invoke-QlooFixedPool `
-        -Profile $profileB `
-        -EntityIds $poolIds `
-        -City $City
-
-    $baseline = Invoke-QlooFixedPool `
-        -Profile $null `
-        -EntityIds $poolIds `
-        -City $City `
-        -Unsignaled
-
-    if (-not (Test-SameEntitySet -ExpectedIds $poolIds -ActualItems $fixedA.Results)) {
-        throw "${caseId}: personalized fixed-pool response for $($profileA.ProfileId) differs from frozen pool."
-    }
-
-    if (-not (Test-SameEntitySet -ExpectedIds $poolIds -ActualItems $fixedB.Results)) {
-        throw "${caseId}: personalized fixed-pool response for $($profileB.ProfileId) differs from frozen pool."
-    }
-
-    if (-not (Test-SameEntitySet -ExpectedIds $poolIds -ActualItems $baseline.Results)) {
-        throw "${caseId}: unsignaled baseline response differs from frozen pool."
-    }
-
-    $missingAffinityA = @(
-        $fixedA.Results |
-        Where-Object { $null -eq $_.Affinity }
-    ).Count
-
-    $missingAffinityB = @(
-        $fixedB.Results |
-        Where-Object { $null -eq $_.Affinity }
-    ).Count
-
-    if ($missingAffinityA -gt 0 -or $missingAffinityB -gt 0) {
-        throw "${caseId}: personalized fixed-pool scoring returned missing affinity values."
-    }
-
-    $fixedMetrics = Get-FixedPoolComparison `
-        -A $fixedA.Results `
-        -B $fixedB.Results `
-        -PoolSize $poolIds.Count
-
-    $baselineMetricsA = Get-BaselineRankingComparison `
-        -Personalized $fixedA.Results `
-        -Baseline $baseline.Results
-
-    $baselineMetricsB = Get-BaselineRankingComparison `
-        -Personalized $fixedB.Results `
-        -Baseline $baseline.Results
 
     $semanticBlind = New-SemanticBlindPacket `
         -PairId $PairId `
         -City $City `
         -ProfileA $profileA `
         -ProfileB $profileB `
-        -RankingA $fixedA.Results `
-        -RankingB $fixedB.Results
+        -RankingA $finalA.Places `
+        -RankingB $finalB.Places
 
     $baselineBlindA = New-BaselineBlindPacket `
         -PairId $PairId `
         -City $City `
         -Profile $profileA `
-        -Personalized $fixedA.Results `
-        -Baseline $baseline.Results
+        -Personalized $finalA.Places `
+        -Baseline $finalBaseline.Places
 
     $baselineBlindB = New-BaselineBlindPacket `
         -PairId $PairId `
         -City $City `
         -Profile $profileB `
-        -Personalized $fixedB.Results `
-        -Baseline $baseline.Results
+        -Personalized $finalB.Places `
+        -Baseline $finalBaseline.Places
 
     $caseRecord = [PSCustomObject]@{
         CaseId = $caseId
         PairId = $PairId
         City   = $City
+
         Profiles = @(
             $profileA,
             $profileB
         )
-        FrozenPoolEntityIds = $poolIds
-        Retrievals          = $retrievalRecords
-        RetrievalMetrics    = $retrievalMetrics
-        FixedPool = [PSCustomObject]@{
+
+        CategoryPools     = $categoryRecords
+        Retrievals       = $retrievalRecords
+        RetrievalMetrics = $retrievalMetrics
+
+        FinalLists = [PSCustomObject]@{
             ProfileA = [PSCustomObject]@{
-                ProfileId  = $profileA.ProfileId
-                RequestUrl = $fixedA.RequestUrl
-                Results    = $fixedA.Results
+                ProfileId      = $profileA.ProfileId
+                TotalCount     = $finalA.TotalCount
+                CategoryCounts = $finalA.CategoryCounts
+                Places         = $finalA.Places
             }
+
             ProfileB = [PSCustomObject]@{
-                ProfileId  = $profileB.ProfileId
-                RequestUrl = $fixedB.RequestUrl
-                Results    = $fixedB.Results
+                ProfileId      = $profileB.ProfileId
+                TotalCount     = $finalB.TotalCount
+                CategoryCounts = $finalB.CategoryCounts
+                Places         = $finalB.Places
             }
+
             Baseline = [PSCustomObject]@{
-                Condition  = $baseline.Condition
-                RequestUrl = $baseline.RequestUrl
-                Results    = $baseline.Results
+                Condition      = "UNSIGNALED_QLOO_BASELINE"
+                TotalCount     = $finalBaseline.TotalCount
+                CategoryCounts = $finalBaseline.CategoryCounts
+                Places         = $finalBaseline.Places
             }
         }
-        FixedPoolMetrics = $fixedMetrics
-        BaselineMetrics = [PSCustomObject]@{
-            ProfileA = [PSCustomObject]@{
-                ProfileId = $profileA.ProfileId
-                Metrics   = $baselineMetricsA
-            }
-            ProfileB = [PSCustomObject]@{
-                ProfileId = $profileB.ProfileId
-                Metrics   = $baselineMetricsB
-            }
-        }
-        BaselineNote = "UNSIGNALED_QLOO_BASELINE provides Qloo's unsignaled/default ranking for the same frozen pool; no baseline affinity values are assumed or required."
+
+        BaselineNote = "UNSIGNALED_QLOO_BASELINE uses the same category-specific frozen pools and the same 3-per-category final-list composition as both personalized conditions."
     }
 
     Write-Utf8Json -Value $caseRecord -Path (Join-Path $caseDir "case-record.json")
@@ -1187,9 +1332,8 @@ function Invoke-FormalRetestCase {
 
     return $caseRecord
 }
-
 # -----------------------------
-# Formal confirmatory execution
+# Formal QMBT-1 confirmatory execution
 # -----------------------------
 
 $gitCommit = $null
@@ -1200,25 +1344,31 @@ try {
 }
 
 $manifest = [PSCustomObject]@{
-    RunId              = $runId
-    StartedUtc         = (Get-Date).ToUniversalTime().ToString("o")
-    Protocol           = "TASTE_TRANSLATION_RETEST"
-    ExecutionMode      = "CONFIRMATORY"
-    PairIds            = @($PairIds)
-    Cities             = @($Cities)
-    CategoryTake       = $CategoryTake
+    RunId         = $runId
+    StartedUtc    = (Get-Date).ToUniversalTime().ToString("o")
+    Protocol      = "QMBT_1"
+    ExecutionMode = "CONFIRMATORY"
+    PairIds       = @($PairIds)
+    Cities        = @($Cities)
+    CategoryTake  = $CategoryTake
+
     ControlledCategories = @(
         $categories |
         Select-Object Id, Name, Tag
     )
-    GitCommit          = $gitCommit
-    Baseline           = "UNSIGNALED_QLOO_BASELINE"
-    Notes              = @(
-        "Pair 2 and Pair 3 are confirmatory.",
+
+    GitCommit = $gitCommit
+    Baseline  = "UNSIGNALED_QLOO_BASELINE"
+
+    Notes = @(
+        "Pair 2 and Pair 3 are frozen confirmatory pairs.",
         "Istanbul and London are frozen destinations.",
-        "Candidate contribution is Top 7 per profile per controlled category.",
-        "No FoodSignalShare metric is used.",
-        "Unsignaled baseline is evaluated by ranking order and blind semantic fit, not affinity."
+        "Each category retrieval contributes Top 3 from Profile A, Top 3 from Profile B, and Top 3 from the unsignaled Qloo baseline.",
+        "Each category-specific frozen pool is the deduplicated union of those three retrievals and may contain at most 9 entities.",
+        "Profile A, Profile B, and the unsignaled baseline are scored over the exact same entity IDs inside each category pool.",
+        "Final lists contain exactly 3 unique entities per frozen category, 18 total, using the pre-registered category priority and deterministic cross-category deduplication/backfill rule.",
+        "Blind semantic and baseline packets include all 18 final-list entities.",
+        "Unsignaled baseline affinity values are not assumed or required."
     )
 }
 
@@ -1239,26 +1389,48 @@ foreach ($pairId in $PairIds) {
 $summaryCases = @(
     $caseResults |
     ForEach-Object {
+        $categorySummaries = @(
+            $_.CategoryPools |
+            ForEach-Object {
+                [PSCustomObject]@{
+                    CategoryId          = $_.CategoryId
+                    FrozenPoolSize      = $_.FrozenPoolSize
+                    FixedTop3Overlap    = $_.FixedPoolMetrics.Top3Overlap
+                    SpearmanRank        = $_.FixedPoolMetrics.SpearmanRank
+                    PearsonAffinity     = $_.FixedPoolMetrics.PearsonAffinity
+                    BaselineTop3OverlapA = $_.BaselineMetrics.ProfileA.Metrics.Top3Overlap
+                    BaselineTop3OverlapB = $_.BaselineMetrics.ProfileB.Metrics.Top3Overlap
+                }
+            }
+        )
+
+        $poolSizes = @(
+            $_.CategoryPools |
+            ForEach-Object { [int]$_.FrozenPoolSize }
+        )
+
         [PSCustomObject]@{
-            CaseId                = $_.CaseId
-            PairId                = $_.PairId
-            City                  = $_.City
-            FrozenPoolSize        = $_.FrozenPoolEntityIds.Count
-            FixedTop10Overlap     = $_.FixedPoolMetrics.Top10Overlap
-            SpearmanRank          = $_.FixedPoolMetrics.SpearmanRank
-            PearsonAffinity       = $_.FixedPoolMetrics.PearsonAffinity
-            AffinityDeltaMean     = $_.FixedPoolMetrics.AffinityDeltaMean
-            AffinityDeltaStdDev   = $_.FixedPoolMetrics.AffinityDeltaStdDev
+            CaseId              = $_.CaseId
+            PairId              = $_.PairId
+            City                = $_.City
+            CategoryPoolCount   = $_.CategoryPools.Count
+            MinCategoryPoolSize = ($poolSizes | Measure-Object -Minimum).Minimum
+            MaxCategoryPoolSize = ($poolSizes | Measure-Object -Maximum).Maximum
+            FinalProfileACount  = $_.FinalLists.ProfileA.TotalCount
+            FinalProfileBCount  = $_.FinalLists.ProfileB.TotalCount
+            FinalBaselineCount  = $_.FinalLists.Baseline.TotalCount
+            CategoryMetrics     = $categorySummaries
         }
     }
 )
 
 $runSummary = [PSCustomObject]@{
-    RunId          = $runId
-    CompletedUtc   = (Get-Date).ToUniversalTime().ToString("o")
-    CaseCount      = $caseResults.Count
-    Cases          = $summaryCases
-    EvaluationGate = "BLIND_EVALUATION_PENDING"
+    RunId            = $runId
+    Protocol         = "QMBT_1"
+    CompletedUtc     = (Get-Date).ToUniversalTime().ToString("o")
+    CaseCount        = $caseResults.Count
+    Cases            = $summaryCases
+    EvaluationGate   = "BLIND_EVALUATION_PENDING"
     AnswerKeyWarning = "Do not open or share any *answer-key.json files before all blind evaluator responses are collected."
 }
 
@@ -1267,17 +1439,20 @@ Write-Utf8Json `
     -Path (Join-Path $runDir "run-summary.json")
 
 Write-Host ""
-Write-Host "FORMAL RETEST RETRIEVAL COMPLETE"
+Write-Host "QMBT-1 RETRIEVAL AND FIXED-POOL SCORING COMPLETE"
 Write-Host ("Run directory: {0}" -f $runDir)
 Write-Host ("Cases completed: {0}" -f $caseResults.Count)
 Write-Host ""
+
 $summaryCases |
     Format-Table `
         CaseId,
-        FrozenPoolSize,
-        @{Name="Top10Overlap";Expression={"{0:P1}" -f $_.FixedTop10Overlap}},
-        @{Name="Spearman";Expression={if ($null -eq $_.SpearmanRank) {"-"} else {"{0:N3}" -f $_.SpearmanRank}}},
-        @{Name="PearsonAffinity";Expression={if ($null -eq $_.PearsonAffinity) {"-"} else {"{0:N3}" -f $_.PearsonAffinity}}} `
+        CategoryPoolCount,
+        MinCategoryPoolSize,
+        MaxCategoryPoolSize,
+        FinalProfileACount,
+        FinalProfileBCount,
+        FinalBaselineCount `
         -AutoSize
 
 Write-Host ""
