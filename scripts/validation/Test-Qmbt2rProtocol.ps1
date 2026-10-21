@@ -81,8 +81,9 @@ try {
     throw "QMBT-2R validation failed: Invalid static contract. $($_.Exception.Message)"
 }
 
-# These values encode approved history and the human-approved K=18 decision.
-# All other unresolved design fields must stay unresolved in this draft task.
+# These values encode approved history plus the human-approved K=18 and
+# development-only structural validation decisions. Remaining design fields
+# must stay unresolved in this draft task.
 $expected = @{
     protocol = 'QMBT-2R'
     status = 'DRAFT / NOT YET PRE-REGISTERED'
@@ -118,22 +119,23 @@ $expected = @{
         holdout_selection_procedure = 'HUMAN_DECISION_REQUIRED'
         final_holdout_identities = 'HUMAN_DECISION_REQUIRED'
         retrieval_depth_K = 18
-        depth_development_validation_method = 'HUMAN_DECISION_REQUIRED'
+        depth_development_validation_method = 'PRIOR_CASES_SINGLE_PASS_STRUCTURAL_QUOTA_FEASIBILITY'
         live_api_stop_conditions = 'HUMAN_DECISION_REQUIRED'
     }
 }
 Assert-ContractValue $expected $contract
 
-# Protect the normative prose as well as JSON: a prose-only replacement of
-# the method, frozen K, or an unresolved placeholder must not bypass the check.
+# Protect normative prose as well as JSON: a prose-only replacement of the
+# method, frozen K, development gate, or an unresolved placeholder must fail.
 $sectionPins = @{
     'Evidence and scope' = '44a8a38766bd5edcc544bdd0273cf3d90ad0e7083fdedcc5e8a55d3bc368b459'
     'Estimand and approved retrieval design' = 'bab710882d66fbd70925f40e0b1ae8b4a0fdbb6ca5e3c2b7e6def646ff01afbf'
-    'Human decisions before pre-registration' = '906747b16078e93d0ed067d3a45baf84406221bfb501b7c1e26e6f6422541cb7'
+    'Human decisions before pre-registration' = '9643be10e716ef2efbaefe1bf47c81877a18576e33ae483d7d98bb68910f0eb9'
+    'Development-only validation method for K=18' = '4b2bf8a0cee633001c01df2f5e0ebae1a3f21d8df1680520f20a252f3c15bdb6'
 }
 foreach ($heading in $sectionPins.Keys) {
     $section = Get-UniqueSection $draft $heading
-    Assert-Protocol ((Get-TextHash $section) -ceq $sectionPins[$heading]) "Approved scope, method, frozen K, or unresolved decisions changed in '$heading'. Human review required."
+    Assert-Protocol ((Get-TextHash $section) -ceq $sectionPins[$heading]) "Approved scope, frozen K, development method, or unresolved decisions changed in '$heading'. Human review required."
 }
 
 # Pin immutable historical evidence only. Workflow structure is intentionally
@@ -180,4 +182,4 @@ foreach ($heading in @('Blind semantic evaluation', 'Baseline evaluation', 'Aggr
     Assert-Protocol ($draftSection -ceq $frozenSection) "Frozen evaluator text changed in '$heading'."
 }
 
-Write-Output 'QMBT-2R static validation passed: draft only; K=18 frozen; contract/evaluators/evidence preserved and CI contains no direct live-Qloo indicators. No live calls executed.'
+Write-Output 'QMBT-2R static validation passed: draft only; K=18 and development-only structural method frozen; contract/evaluators/evidence preserved and CI contains no direct live-Qloo indicators. No live calls executed.'
