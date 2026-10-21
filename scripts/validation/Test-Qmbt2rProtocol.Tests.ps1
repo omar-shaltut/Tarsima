@@ -119,10 +119,7 @@ Assert-Rejected 'Change frozen retrieval depth K' {
 
 Assert-Rejected 'Change frozen development validation method' {
     param($root)
-    Set-ContractMutation $root {
-        param($value)
-        $value.human_decisions.depth_development_validation_method = 'UNAPPROVED_ALTERNATIVE'
-    }
+    Set-ContractMutation $root { param($value) $value.human_decisions.depth_development_validation_method = 'UNAPPROVED_ALTERNATIVE' }
 }
 
 Assert-Rejected 'Change frozen holdout city pool size' {
@@ -177,10 +174,7 @@ Assert-Rejected 'Allow Qloo Insights during city resolution' {
 
 Assert-Rejected 'Allow Qloo Insights during holdout pool construction' {
     param($root)
-    Set-ContractMutation $root {
-        param($value)
-        $value.holdout_selection_policy.qloo_insights_for_pool_construction_allowed = $true
-    }
+    Set-ContractMutation $root { param($value) $value.holdout_selection_policy.qloo_insights_for_pool_construction_allowed = $true }
 }
 
 Assert-Rejected 'Use coordinates operationally' {
@@ -250,18 +244,12 @@ Assert-Rejected 'Allow seed push retry with recreated commit' {
 
 Assert-Rejected 'Allow holdout seed commit history rewrite' {
     param($root)
-    Set-ContractMutation $root {
-        param($value)
-        $value.holdout_selection_policy.seed_commit_history_rewrite_allowed = $true
-    }
+    Set-ContractMutation $root { param($value) $value.holdout_selection_policy.seed_commit_history_rewrite_allowed = $true }
 }
 
 Assert-Rejected 'Change deterministic holdout ranking hash' {
     param($root)
-    Set-ContractMutation $root {
-        param($value)
-        $value.holdout_selection_policy.ranking_hash = 'RANDOM_MANUAL_SELECTION'
-    }
+    Set-ContractMutation $root { param($value) $value.holdout_selection_policy.ranking_hash = 'RANDOM_MANUAL_SELECTION' }
 }
 
 Assert-Rejected 'Resolve profile seeds before deterministic selection' {
@@ -271,26 +259,17 @@ Assert-Rejected 'Resolve profile seeds before deterministic selection' {
 
 Assert-Rejected 'Allow holdout recommendation preflight' {
     param($root)
-    Set-ContractMutation $root {
-        param($value)
-        $value.holdout_selection_policy.qloo_recommendation_preflight_allowed = $true
-    }
+    Set-ContractMutation $root { param($value) $value.holdout_selection_policy.qloo_recommendation_preflight_allowed = $true }
 }
 
 Assert-Rejected 'Allow single-seed substitution after holdout selection' {
     param($root)
-    Set-ContractMutation $root {
-        param($value)
-        $value.holdout_selection_policy.single_seed_substitution_allowed = $true
-    }
+    Set-ContractMutation $root { param($value) $value.holdout_selection_policy.single_seed_substitution_allowed = $true }
 }
 
 Assert-Rejected 'Allow post-confirmatory holdout reselection' {
     param($root)
-    Set-ContractMutation $root {
-        param($value)
-        $value.holdout_selection_policy.post_first_confirmatory_reselection_allowed = $true
-    }
+    Set-ContractMutation $root { param($value) $value.holdout_selection_policy.post_first_confirmatory_reselection_allowed = $true }
 }
 
 Assert-Rejected 'Replace independent retrieval with fixed-pool mode' {
@@ -356,50 +335,35 @@ Assert-Rejected 'Change frozen retrieval depth in prose only' {
 Assert-Rejected 'Change frozen development validation method in prose only' {
     param($root)
     $path = Join-Path $root 'docs/QMBT_2R_PROTOCOL.md'
-    $text = [IO.File]::ReadAllText($path).Replace(
-        'This is one registered structural pass:',
-        'This is two registered structural passes:'
-    )
+    $text = [IO.File]::ReadAllText($path).Replace('This is one registered structural pass:', 'This is two registered structural passes:')
     [IO.File]::WriteAllText($path, $text)
 }
 
 Assert-Rejected 'Change frozen holdout selection procedure in prose only' {
     param($root)
     $path = Join-Path $root 'docs/QMBT_2R_PROTOCOL.md'
-    $text = [IO.File]::ReadAllText($path).Replace(
-        'The candidate pool contains exactly:',
-        'The candidate pool may contain:'
-    )
+    $text = [IO.File]::ReadAllText($path).Replace('The candidate pool contains exactly:', 'The candidate pool may contain:')
     [IO.File]::WriteAllText($path, $text)
 }
 
 Assert-Rejected 'Change locality radius in prose only' {
     param($root)
     $path = Join-Path $root 'docs/QMBT_2R_PROTOCOL.md'
-    $text = [IO.File]::ReadAllText($path).Replace(
-        '- set `filter.location.radius=0`;',
-        '- omit `filter.location.radius`;'
-    )
+    $text = [IO.File]::ReadAllText($path).Replace('- set `filter.location.radius=0`;', '- omit `filter.location.radius`;')
     [IO.File]::WriteAllText($path, $text)
 }
 
 Assert-Rejected 'Allow automatic unresolved-city replacement in prose only' {
     param($root)
     $path = Join-Path $root 'docs/QMBT_2R_PROTOCOL.md'
-    $text = [IO.File]::ReadAllText($path).Replace(
-        '**stop for human review and do not create\na Seed Commit**.',
-        '**automatically replace the city and continue**.'
-    )
+    $text = [IO.File]::ReadAllText($path).Replace('There is no automatic replacement, fallback coordinate, fuzzy', 'Automatic replacement, fallback coordinates, and fuzzy')
     [IO.File]::WriteAllText($path, $text)
 }
 
 Assert-Rejected 'Allow Seed Commit alternatives in prose only' {
     param($root)
     $path = Join-Path $root 'docs/QMBT_2R_PROTOCOL.md'
-    $text = [IO.File]::ReadAllText($path).Replace(
-        '- do not generate, score, compare, or discard alternative candidate Seed\n  Commits locally or remotely;',
-        '- generate alternative candidate Seed Commits and pick one;'
-    )
+    $text = [IO.File]::ReadAllText($path).Replace('do not generate, score, compare, or discard alternative candidate Seed', 'generate, score, compare, and choose alternative candidate Seed')
     [IO.File]::WriteAllText($path, $text)
 }
 
