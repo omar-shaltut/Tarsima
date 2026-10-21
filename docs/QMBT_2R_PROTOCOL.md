@@ -44,11 +44,11 @@ deduplication, backfill, and final display is:
 6. Shopping mall — `urn:tag:category:place:shopping_mall`
 
 An entity appears once per final list; later category blocks backfill in Qloo
-return order after earlier blocks claim an entity. Retrieval depth and the
-feasibility of filling these quotas are unresolved. This draft does not invent
-an API retry, omission, or quota-shortfall policy. Restaurant retrieval remains
-validation infrastructure, not a halal endorsement; production compliance
-filtering remains mandatory and unchanged.
+return order after earlier blocks claim an entity. `retrieval_depth_K` is frozen
+at `18` by human decision. Empirical feasibility of filling these quotas remains
+unresolved. This draft does not invent an API retry, omission, or quota-shortfall
+policy. Restaurant retrieval remains validation infrastructure, not a halal
+endorsement; production compliance filtering remains mandatory and unchanged.
 
 ## Human decisions before pre-registration
 
@@ -56,16 +56,36 @@ filtering remains mandatory and unchanged.
 | --- | --- |
 | Holdout-selection procedure | `HUMAN_DECISION_REQUIRED` |
 | Final holdout identities | `HUMAN_DECISION_REQUIRED` |
-| Retrieval depth K | `HUMAN_DECISION_REQUIRED` |
+| Retrieval depth K | `18` — **FROZEN HUMAN DECISION** |
 | Development-only method for validating K | `HUMAN_DECISION_REQUIRED` |
 | Stop conditions depending on unvalidated live API behavior | `HUMAN_DECISION_REQUIRED` |
 
-No numeric K, selection procedure, holdout identities, or live-dependent stop
-conditions are chosen here. The four-case aggregate framework below is
-inherited; it does not designate replacement profiles or cities. Development
-validation must not inspect new confirmatory outputs or tune on holdouts.
-Any eventual completion requires human review, a committed pre-registration,
-and successful repository validation before a separately authorized live run.
+`retrieval_depth_K = 18` is frozen before any new retrieval. It is derived
+structurally, not tuned on taste quality. For category position `j` in the fixed
+priority order, earlier categories can have assigned at most `3(j-1)` unique
+entity IDs. To guarantee 3 current-category candidates remain after excluding
+all earlier assignments, a response containing `K` distinct current-category
+entity IDs must satisfy:
+
+`K >= 3(j-1) + 3 = 3j`
+
+With six categories, the worst case is `j = 6`, so `K >= 18`. QMBT-2R therefore
+freezes the smallest worst-case structural depth: `K = 18`.
+
+This is a combinatorial backfill bound, not an empirical claim about Qloo API
+behavior. It applies only when a category retrieval returns at least 18 distinct
+entity IDs. API acceptance of the requested depth, actual development quota
+fill, and live-dependent stop conditions remain unresolved development-only
+validation questions. Semantic quality, affinity magnitudes, evaluator
+preference, or confirmatory holdout output must not be used to change K.
+
+No holdout-selection procedure, holdout identities, development-only K
+validation method, or live-dependent stop conditions are chosen here. The
+four-case aggregate framework below is inherited; it does not designate
+replacement profiles or cities. Development validation must not inspect new
+confirmatory outputs or tune on holdouts. Any eventual completion requires
+human review, a committed pre-registration, and successful repository validation
+before a separately authorized live run.
 
 ## Static contract
 
@@ -110,7 +130,7 @@ update to make a failing check pass.
   "human_decisions": {
     "holdout_selection_procedure": "HUMAN_DECISION_REQUIRED",
     "final_holdout_identities": "HUMAN_DECISION_REQUIRED",
-    "retrieval_depth_K": "HUMAN_DECISION_REQUIRED",
+    "retrieval_depth_K": 18,
     "depth_development_validation_method": "HUMAN_DECISION_REQUIRED",
     "live_api_stop_conditions": "HUMAN_DECISION_REQUIRED"
   }
