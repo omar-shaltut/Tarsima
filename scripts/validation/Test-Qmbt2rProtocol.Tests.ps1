@@ -15,6 +15,17 @@ $fixtureFiles = @(
     '.github/workflows/qloo-evidence-audit.yml'
 )
 
+function New-ValidationFixture {
+    $root = Join-Path ([IO.Path]::GetTempPath()) ('qmbt2r-static-' + [guid]::NewGuid().ToString('N'))
+    $null = New-Item -ItemType Directory -Path $root
+    foreach ($relativePath in $fixtureFiles) {
+        $destination = Join-Path $root $relativePath
+        $null = New-Item -ItemType Directory -Path (Split-Path $destination) -Force
+        Copy-Item -LiteralPath (Join-Path $repositoryRoot $relativePath) -Destination $destination
+    }
+    return $root
+}
+
 function Set-ContractMutation {
     param([string]$Root, [scriptblock]$Mutation)
     $path = Join-Path $Root 'docs/QMBT_2R_PROTOCOL.md'
@@ -28,14 +39,8 @@ function Set-ContractMutation {
 
 function Assert-Rejected {
     param([string]$Name, [scriptblock]$Mutation)
-    $root = Join-Path ([IO.Path]::GetTempPath()) ('qmbt2r-static-' + [guid]::NewGuid().ToString('N'))
-    $null = New-Item -ItemType Directory -Path $root
+    $root = New-ValidationFixture
     try {
-        foreach ($relativePath in $fixtureFiles) {
-            $destination = Join-Path $root $relativePath
-            $null = New-Item -ItemType Directory -Path (Split-Path $destination) -Force
-            Copy-Item -LiteralPath (Join-Path $repositoryRoot $relativePath) -Destination $destination
-        }
         & $Mutation $root
         $rejected = $false
         try { & $validator -RepositoryRoot $root > $null } catch {
@@ -43,6 +48,20 @@ function Assert-Rejected {
             $rejected = $true
         }
         if (-not $rejected) { throw "Unsafe mutation was accepted: $Name" }
+        $script:passed++
+    } finally {
+        Remove-Item -LiteralPath $root -Recurse -Force
+    }
+}
+
+function Assert-Accepted {
+    param([string]$Name, [scriptblock]$Mutation)
+    $root = New-ValidationFixture
+    try {
+        & $Mutation $root
+        try { & $validator -RepositoryRoot $root > $null } catch {
+            throw "Safe mutation was rejected: $Name. $($_.Exception.Message)"
+        }
         $script:passed++
     } finally {
         Remove-Item -LiteralPath $root -Recurse -Force
@@ -150,22 +169,26 @@ Assert-Rejected 'Rewrite historical invalid evidence' {
     Add-Content -LiteralPath (Join-Path $root 'docs/QMBT_1_INVALID_RUN_20261020.md') -Value 'REINTERPRETED_AS_SUCCESS'
 }
 
-foreach ($command in @('Invoke-RestMethod https://example.invalid/',
-    './scripts/qloo-spikes/14-qmbt-1-retest.ps1', '${{ secrets.UNAPPROVED_SECRET }}')) {
-    Assert-Rejected 'Add live, indirect, or secret-dependent execution to existing CI' {
+foreach ($command in @(
+    'curl https://hackathon.api.qloo.com/v2/insights',
+    'echo ${{ secrets.QLOO_API_KEY }}',
+    './scripts/qloo-spikes/14-qmbt-1-retest.ps1'
+)) {
+    Assert-Rejected 'Add direct live-Qloo indicator to CI' {
         param($root)
         Add-Content -LiteralPath (Join-Path $root '.github/workflows/validation.yml') -Value "`n      - run: $command"
     }
 }
 
-Assert-Rejected 'Introduce another workflow with an indirect runner' {
+Assert-Accepted 'Add unrelated safe workflow' {
     param($root)
-    [IO.File]::WriteAllText((Join-Path $root '.github/workflows/unreviewed.yaml'), 'jobs: {run: {uses: example/remote/.github/workflows/live.yml@main}}')
+    $path = Join-Path $root '.github/workflows/unrelated-safe.yml'
+    [IO.File]::WriteAllText($path, "name: Safe Lint`non:`n  workflow_dispatch:`njobs:`n  lint:`n    runs-on: ubuntu-latest`n    steps:`n      - run: echo safe`n")
 }
 
-Assert-Rejected 'Remove a reviewed workflow' {
+Assert-Accepted 'Modify unrelated workflow without live-Qloo indicators' {
     param($root)
-    Remove-Item -LiteralPath (Join-Path $root '.github/workflows/qloo-evidence-audit.yml')
+    Add-Content -LiteralPath (Join-Path $root '.github/workflows/qloo-evidence-audit.yml') -Value "`n# harmless documentation-only workflow edit"
 }
 
-Write-Output "QMBT-2R validator tests passed: $script:passed checks, including a valid draft and rejected unsafe mutations. No live calls executed."
+Write-Output "QMBT-2R validator tests passed: $script:passed checks, including safe CI evolution and rejected unsafe mutations. No live calls executed."
