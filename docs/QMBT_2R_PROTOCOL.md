@@ -183,15 +183,18 @@ Run the following from the repository root, entirely offline:
 ```
 
 Repository CI retains its existing PowerShell syntax and QMBT-1 safety checks
-and runs these new checks. The static validator pins the historical records
-and the reviewed CI workflow files (SHA-256, normalized LF/UTF-8 text). Unknown
-or changed workflows fail closed, including indirect or secret-dependent
-execution steps. Updating those pins requires human review of the complete
-workflow; never refresh them automatically. The checks validate the contract,
-frozen evaluator text, evidence preservation, and reviewed CI definitions;
-they cannot establish API feasibility or empirically validate the hypothesis.
-The approved scope, retrieval-design prose, and unresolved-decision section
-are pinned too, so prose-only changes cannot bypass the static contract.
+and runs these new checks. The static validator pins the historical evidence
+records and scans repository workflows for direct live-Qloo indicators such as
+the hackathon API host, `QLOO_API_KEY`, or execution/reference of the Qloo spike
+scripts. It intentionally does not freeze the number or complete contents of
+unrelated workflows, so safe CI evolution remains possible. The Qloo evidence
+audit may access public GitHub-hosted Qloo documentation, but it does not call
+the Qloo API or use Qloo secrets. The checks validate the contract, frozen
+evaluator text, evidence preservation, and absence of direct live-Qloo CI
+execution indicators; they cannot establish API feasibility or empirically
+validate the hypothesis. The approved scope, retrieval-design prose, and
+unresolved-decision section are pinned too, so prose-only changes cannot bypass
+the static contract.
 
 Stop at PR review. Holdout selection, live calls, execution harnesses, UI,
 agent-loop expansion, policy changes, and merging are outside this draft task.
