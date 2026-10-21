@@ -8,6 +8,7 @@ $script:passed = 0
 
 $fixtureFiles = @(
     'docs/QMBT_2R_PROTOCOL.md',
+    'docs/QMBT_2R_LOC_DIRECT_QUERY_V1.md',
     'docs/QMBT_1_PROTOCOL.md',
     'docs/QMBT_1_INVALID_RUN_20261020.md',
     'docs/QLOO_FIXED_POOL_DIAGNOSTIC.md',
