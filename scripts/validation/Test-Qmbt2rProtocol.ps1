@@ -161,7 +161,7 @@ if (Test-Path -LiteralPath $workflowRoot -PathType Container) {
     $forbiddenWorkflowPatterns = @(
         [PSCustomObject]@{ Name = 'Qloo hackathon API host'; Pattern = '(?i)hackathon\.api\.qloo\.com' },
         [PSCustomObject]@{ Name = 'Qloo API key'; Pattern = '(?i)\bQLOO_API_KEY\b' },
-        [PSCustomObject]@{ Name = 'Qloo spike-script execution'; Pattern = '(?im)^\s*(?:&\s*)?(?:pwsh\s+)?(?:\.\/)?scripts\/qloo-spikes\/[^\r\n]*\.ps1\b' }
+        [PSCustomObject]@{ Name = 'Qloo spike-script execution'; Pattern = '(?im)^\s*(?:-\s*)?(?:run:\s*)?(?:&\s*)?(?:pwsh\s+)?(?:\.\/)?scripts\/qloo-spikes\/[^\r\n]*\.ps1\b' }
     )
 
     foreach ($workflow in $workflows) {
