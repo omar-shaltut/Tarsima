@@ -57,7 +57,7 @@ endorsement; production compliance filtering remains mandatory and unchanged.
 | Holdout-selection procedure | `HUMAN_DECISION_REQUIRED` |
 | Final holdout identities | `HUMAN_DECISION_REQUIRED` |
 | Retrieval depth K | `18` — **FROZEN HUMAN DECISION** |
-| Development-only method for validating K | `HUMAN_DECISION_REQUIRED` |
+| Development-only method for validating K | `PRIOR_CASES_SINGLE_PASS_STRUCTURAL_QUOTA_FEASIBILITY` — **FROZEN HUMAN DECISION** |
 | Stop conditions depending on unvalidated live API behavior | `HUMAN_DECISION_REQUIRED` |
 
 `retrieval_depth_K = 18` is frozen before any new retrieval. It is derived
@@ -75,17 +75,72 @@ freezes the smallest worst-case structural depth: `K = 18`.
 This is a combinatorial backfill bound, not an empirical claim about Qloo API
 behavior. It applies only when a category retrieval returns at least 18 distinct
 entity IDs. API acceptance of the requested depth, actual development quota
-fill, and live-dependent stop conditions remain unresolved development-only
-validation questions. Semantic quality, affinity magnitudes, evaluator
-preference, or confirmatory holdout output must not be used to change K.
+fill, and live-dependent stop conditions remain operational questions. Semantic
+quality, affinity magnitudes, evaluator preference, or confirmatory holdout
+output must not be used to change K.
 
-No holdout-selection procedure, holdout identities, development-only K
-validation method, or live-dependent stop conditions are chosen here. The
-four-case aggregate framework below is inherited; it does not designate
-replacement profiles or cities. Development validation must not inspect new
-confirmatory outputs or tune on holdouts. Any eventual completion requires
-human review, a committed pre-registration, and successful repository validation
-before a separately authorized live run.
+No holdout-selection procedure, holdout identities, or live-dependent stop
+conditions are chosen here. The development-only validation method is frozen
+below, but this draft still authorizes no live retrieval. The four-case aggregate
+framework below is inherited; it does not designate replacement profiles or
+cities. Development validation must not inspect new confirmatory outputs or
+tune on holdouts. Any eventual completion requires human review, a committed
+pre-registration, and successful repository validation before a separately
+authorized confirmatory run.
+
+## Development-only validation method for K=18
+
+Method identifier:
+`PRIOR_CASES_SINGLE_PASS_STRUCTURAL_QUOTA_FEASIBILITY`.
+
+Purpose: test whether the frozen retrieval design can structurally produce the
+required quota-matched lists on development-only material. This gate must not
+measure or optimize taste quality.
+
+The development dataset is limited to the already-exposed
+Pair2/Pair3 × Istanbul/London cases. For each of the four profile-pair × city
+cases, run exactly three independent conditions: profile side A, profile side B,
+and `UNSIGNALED_QLOO_BASELINE`. Each condition requests the six frozen categories
+independently with `take = 18`. This is one registered structural pass:
+4 cases × 3 conditions × 6 categories = 72 category retrieval requests.
+
+For each completed category response, record at minimum:
+
+- request condition, city, category ID, and requested `take`;
+- API outcome/status;
+- returned entity count and distinct entity-ID count;
+- returned entity IDs in Qloo order;
+- cross-category duplicate skips;
+- selected count for the category; and
+- final unique entity count for the condition.
+
+List construction is deterministic. Traverse the six frozen categories in the
+frozen priority order. Within each category, traverse returned entities in Qloo
+order and select the first three entity IDs not already selected by an earlier
+category. Duplicate IDs are skipped. Do not use affinity magnitude, generated
+explanations, LLM judgment, synthetic scores, zero-imputation, intersection-only
+selection, substitution, or venue reordering.
+
+A completed development condition satisfies the structural gate only if it
+produces exactly 3 selected entities in every category and exactly 18 unique
+entities overall. All 12 development conditions must satisfy that gate for the
+structural result to be `DEVELOPMENT_K_FEASIBLE`.
+
+A returned distinct-ID count below 18 is telemetry, not by itself a failure, if
+the deterministic assembly still fills all six quotas. Conversely, a completed
+response set that cannot fill a quota is structural evidence of
+`DEVELOPMENT_K_NOT_FEASIBLE`; K must not be increased or retuned automatically.
+
+Transport/API errors, rate limits, malformed responses, or other incomplete
+requests are not reclassified as K failures by this method. Their retry/stop
+handling belongs to the separately frozen live-API stop conditions, which remain
+`HUMAN_DECISION_REQUIRED`.
+
+No evaluator is run, no semantic or baseline advantage is scored, no affinity
+comparison is used, and no new holdout is accessed. Exact repeatability across
+multiple live passes is not a success criterion for this structural gate. Any
+stability study, if later justified, must be registered separately and cannot be
+used to retune K.
 
 ## Static contract
 
@@ -131,7 +186,7 @@ update to make a failing check pass.
     "holdout_selection_procedure": "HUMAN_DECISION_REQUIRED",
     "final_holdout_identities": "HUMAN_DECISION_REQUIRED",
     "retrieval_depth_K": 18,
-    "depth_development_validation_method": "HUMAN_DECISION_REQUIRED",
+    "depth_development_validation_method": "PRIOR_CASES_SINGLE_PASS_STRUCTURAL_QUOTA_FEASIBILITY",
     "live_api_stop_conditions": "HUMAN_DECISION_REQUIRED"
   }
 }
@@ -212,9 +267,9 @@ audit may access public GitHub-hosted Qloo documentation, but it does not call
 the Qloo API or use Qloo secrets. The checks validate the contract, frozen
 evaluator text, evidence preservation, and absence of direct live-Qloo CI
 execution indicators; they cannot establish API feasibility or empirically
-validate the hypothesis. The approved scope, retrieval-design prose, and
-unresolved-decision section are pinned too, so prose-only changes cannot bypass
-the static contract.
+validate the hypothesis. The approved scope, retrieval-design prose, frozen
+K decision, development-only validation method, and unresolved-decision state
+are pinned too, so prose-only changes cannot bypass the static contract.
 
 Stop at PR review. Holdout selection, live calls, execution harnesses, UI,
 agent-loop expansion, policy changes, and merging are outside this draft task.
