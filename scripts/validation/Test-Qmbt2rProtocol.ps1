@@ -82,8 +82,9 @@ try {
 }
 
 # These values encode approved history plus the human-approved K=18,
-# development-only structural validation, and bounded live-API retry policy.
-# Holdout choices remain unresolved in this draft task.
+# development-only structural validation, bounded live-API retry policy, and
+# deterministic holdout-selection procedure. Final holdout identities remain
+# unresolved in this draft task.
 $expected = @{
     protocol = 'QMBT-2R'
     status = 'DRAFT / NOT YET PRE-REGISTERED'
@@ -115,6 +116,31 @@ $expected = @{
     answer_key_hidden_until_all_responses = $true
     requires_new_holdout_set = $true
     prior_case_role = 'DEVELOPMENT_DIAGNOSTIC_ONLY'
+    holdout_selection_policy = @{
+        policy_id = 'COMMIT_SEEDED_FROZEN_POOL_SELECTION_V1'
+        city_pool_size = 8
+        profile_pair_pool_size = 6
+        selected_city_count = 2
+        selected_profile_pair_count = 2
+        confirmatory_cross_product_case_count = 4
+        exclude_prior_development_cities = $true
+        exclude_prior_seed_entities = $true
+        unique_seed_entities_across_pool = $true
+        prohibited_theme_exclusion_required = $true
+        qloo_insights_for_pool_construction_allowed = $false
+        seed_commit_history_rewrite_allowed = $false
+        ranking_hash = 'SHA256(seed_commit_sha | QMBT-2R | candidate_type | canonical_id)'
+        rank_ascending = $true
+        canonical_id_collision_tiebreak_ascending = $true
+        entity_resolution_after_selection_only = $true
+        qloo_recommendation_preflight_allowed = $false
+        unresolved_seed_rejects_entire_pair = $true
+        single_seed_substitution_allowed = $false
+        advance_by_frozen_pair_rank = $true
+        pool_expansion_after_resolution_failure_allowed = $false
+        final_holdouts_require_post_resolution_commit = $true
+        post_first_confirmatory_reselection_allowed = $false
+    }
     live_api_policy = @{
         policy_id = 'EXACT_REQUEST_BOUNDED_RETRY_V1'
         max_attempts_per_request = 3
@@ -134,7 +160,7 @@ $expected = @{
         exhausted_or_nonretryable_classification = 'INCOMPLETE_EXECUTION_API_OR_TRANSPORT'
     }
     human_decisions = @{
-        holdout_selection_procedure = 'HUMAN_DECISION_REQUIRED'
+        holdout_selection_procedure = 'COMMIT_SEEDED_FROZEN_POOL_SELECTION_V1'
         final_holdout_identities = 'HUMAN_DECISION_REQUIRED'
         retrieval_depth_K = 18
         depth_development_validation_method = 'PRIOR_CASES_SINGLE_PASS_STRUCTURAL_QUOTA_FEASIBILITY'
@@ -144,17 +170,18 @@ $expected = @{
 Assert-ContractValue $expected $contract
 
 # Protect normative prose as well as JSON: prose-only changes to frozen
-# retrieval, development, retry/stop, or unresolved holdout decisions must fail.
+# retrieval, development, retry/stop, holdout selection, or unresolved final holdout identities must fail.
 $sectionPins = @{
     'Evidence and scope' = '44a8a38766bd5edcc544bdd0273cf3d90ad0e7083fdedcc5e8a55d3bc368b459'
     'Estimand and approved retrieval design' = 'd9bfeb1cd319a1ff1ca81b626446a81facf3989c13b2e0cac3b1d04f3649c31c'
-    'Human decisions before pre-registration' = '20d4f003cad7103369092558cb9f7003801ce8ea4b41ed7628c712c2f8e0511f'
+    'Human decisions before pre-registration' = 'aed7b69957e9433415f976ca06ab17e2a6d367bcf7a20a814e768bcb24cd9239'
     'Development-only validation method for K=18' = 'ffa4ef65169fa9e73a8a40a39488ad9247e596ed965007acd5dc68625dfb1f19'
     'Live API retry and stop policy' = 'bba51c8203aa89e53a150886c64975fd3958b309bf802c146f04140502a1ee05'
+    'Holdout selection procedure' = '363527f70fbccb4600753001561f4a9f2b344fed006cfc89f4df3e5ae28e0665'
 }
 foreach ($heading in $sectionPins.Keys) {
     $section = Get-UniqueSection $draft $heading
-    Assert-Protocol ((Get-TextHash $section) -ceq $sectionPins[$heading]) "Approved scope, frozen K, development method, retry/stop policy, or unresolved holdout decisions changed in '$heading'. Human review required."
+    Assert-Protocol ((Get-TextHash $section) -ceq $sectionPins[$heading]) "Approved scope, frozen K, development method, retry/stop policy, holdout-selection policy, or unresolved final holdout identities changed in '$heading'. Human review required."
 }
 
 # Pin immutable historical evidence only. Workflow structure is intentionally
@@ -201,4 +228,4 @@ foreach ($heading in @('Blind semantic evaluation', 'Baseline evaluation', 'Aggr
     Assert-Protocol ($draftSection -ceq $frozenSection) "Frozen evaluator text changed in '$heading'."
 }
 
-Write-Output 'QMBT-2R static validation passed: draft only; K=18, development-only structural method, and bounded retry/stop policy frozen; contract/evaluators/evidence preserved and CI contains no direct live-Qloo indicators. No live calls executed.'
+Write-Output 'QMBT-2R static validation passed: draft only; K=18, development-only structural method, bounded retry/stop policy, and deterministic holdout-selection procedure frozen; final holdout identities unresolved; contract/evaluators/evidence preserved and CI contains no direct live-Qloo indicators. No live calls executed.'
