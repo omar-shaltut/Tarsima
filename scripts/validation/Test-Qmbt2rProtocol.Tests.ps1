@@ -233,9 +233,9 @@ Assert-Rejected 'Mutate direct-location radius' {
     Set-ManifestMutation $root { param($value) $value.filter_location_radius = 5000 }
 }
 
-Assert-Rejected 'Enable WKT fallback in manifest' {
+Assert-Rejected 'Enable geography fallback in manifest' {
     param($root)
-    Set-ManifestMutation $root { param($value) $value.prohibitions.wkt_filter = $false }
+    Set-ManifestMutation $root { param($value) $value.fallback_geography_allowed = $true }
 }
 
 Assert-Rejected 'Lower evaluator threshold in prose only' {
