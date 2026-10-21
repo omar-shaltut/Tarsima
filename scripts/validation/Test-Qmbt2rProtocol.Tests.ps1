@@ -33,7 +33,7 @@ function Set-ContractMutation {
     $block = [regex]::Match($text, '(?ms)^```json\n(.*?)\n```$').Groups[1]
     $value = ConvertFrom-Json -InputObject $block.Value -AsHashtable
     & $Mutation $value
-    $json = ConvertTo-Json -InputObject $value -Depth 20
+    $json = ConvertTo-Json -InputObject $value -Depth 30
     [IO.File]::WriteAllText($path, $text.Substring(0, $block.Index) + $json + $text.Substring($block.Index + $block.Length))
 }
 
@@ -104,7 +104,8 @@ Assert-Rejected 'Resolve final holdout identities without reviewed selection out
     }
 }
 
-foreach ($field in @('holdout_selection_procedure', 'live_api_stop_conditions')) {
+foreach ($field in @('holdout_selection_procedure', 'city_operationalization',
+    'seed_commit_anti_grinding_rule', 'live_api_stop_conditions')) {
     Assert-Rejected "Change frozen human decision $field" {
         param($root)
         Set-ContractMutation $root { param($value) $value.human_decisions[$field] = 'UNAPPROVED_DECISION' }
@@ -134,12 +135,117 @@ Assert-Rejected 'Change frozen holdout profile-pair pool size' {
     Set-ContractMutation $root { param($value) $value.holdout_selection_policy.profile_pair_pool_size = 8 }
 }
 
+Assert-Rejected 'Change locality operationalization policy' {
+    param($root)
+    Set-ContractMutation $root { param($value) $value.holdout_selection_policy.city_operationalization_policy = 'WKT_POINT' }
+}
+
+Assert-Rejected 'Change single-shot Seed Commit policy' {
+    param($root)
+    Set-ContractMutation $root { param($value) $value.holdout_selection_policy.seed_commit_policy = 'MULTI_TRY_SEED' }
+}
+
+Assert-Rejected 'Disable pre-Seed locality resolution' {
+    param($root)
+    Set-ContractMutation $root { param($value) $value.holdout_selection_policy.city_preseed_resolution_required = $false }
+}
+
+Assert-Rejected 'Resolve fewer than all eight city candidates' {
+    param($root)
+    Set-ContractMutation $root { param($value) $value.holdout_selection_policy.city_preseed_resolution_scope = 'SELECTED_ONLY' }
+}
+
+Assert-Rejected 'Use non-Lookup city resolution API' {
+    param($root)
+    Set-ContractMutation $root { param($value) $value.holdout_selection_policy.city_resolution_api = 'INSIGHTS_PREFLIGHT' }
+}
+
+Assert-Rejected 'Allow ambiguous locality resolution' {
+    param($root)
+    Set-ContractMutation $root { param($value) $value.holdout_selection_policy.city_resolution_requires_single_locality = $false }
+}
+
+Assert-Rejected 'Auto-replace unresolved city before Seed Commit' {
+    param($root)
+    Set-ContractMutation $root { param($value) $value.holdout_selection_policy.city_resolution_failure_action = 'AUTO_REPLACE' }
+}
+
+Assert-Rejected 'Allow Qloo Insights during city resolution' {
+    param($root)
+    Set-ContractMutation $root { param($value) $value.holdout_selection_policy.qloo_insights_for_city_resolution_allowed = $true }
+}
+
 Assert-Rejected 'Allow Qloo Insights during holdout pool construction' {
     param($root)
     Set-ContractMutation $root {
         param($value)
         $value.holdout_selection_policy.qloo_insights_for_pool_construction_allowed = $true
     }
+}
+
+Assert-Rejected 'Use coordinates operationally' {
+    param($root)
+    Set-ContractMutation $root { param($value) $value.holdout_selection_policy.city_coordinates_role = 'OPERATIONAL_FILTER' }
+}
+
+Assert-Rejected 'Do not freeze locality IDs before Seed Commit' {
+    param($root)
+    Set-ContractMutation $root { param($value) $value.holdout_selection_policy.locality_ids_committed_before_seed = $false }
+}
+
+Assert-Rejected 'Change confirmatory locality filter source' {
+    param($root)
+    Set-ContractMutation $root { param($value) $value.holdout_selection_policy.confirmatory_location_filter = 'WKT_POINT' }
+}
+
+Assert-Rejected 'Change strict locality radius' {
+    param($root)
+    Set-ContractMutation $root { param($value) $value.holdout_selection_policy.confirmatory_filter_location_radius = 1000 }
+}
+
+Assert-Rejected 'Allow fuzzy filter.location.query confirmatory use' {
+    param($root)
+    Set-ContractMutation $root { param($value) $value.holdout_selection_policy.confirmatory_filter_location_query_allowed = $true }
+}
+
+Assert-Rejected 'Allow signal.location in confirmatory requests' {
+    param($root)
+    Set-ContractMutation $root { param($value) $value.holdout_selection_policy.confirmatory_signal_location_allowed = $true }
+}
+
+Assert-Rejected 'Allow coordinate fallback in confirmatory requests' {
+    param($root)
+    Set-ContractMutation $root { param($value) $value.holdout_selection_policy.confirmatory_coordinate_filter_allowed = $true }
+}
+
+Assert-Rejected 'Allow city replacement after Seed Commit' {
+    param($root)
+    Set-ContractMutation $root { param($value) $value.holdout_selection_policy.post_seed_city_replacement_allowed = $true }
+}
+
+Assert-Rejected 'Skip pre-registration of seed branch and parent' {
+    param($root)
+    Set-ContractMutation $root { param($value) $value.holdout_selection_policy.seed_parent_and_branch_registered_before_commit = $false }
+}
+
+Assert-Rejected 'Allow later remote Seed Commit to become seed' {
+    param($root)
+    Set-ContractMutation $root { param($value) $value.holdout_selection_policy.seed_commit_first_remote_schema_match = $false }
+}
+
+Assert-Rejected 'Allow generating alternative candidate Seed Commits' {
+    param($root)
+    Set-ContractMutation $root { param($value) $value.holdout_selection_policy.seed_alternative_commit_generation_allowed = $true }
+}
+
+Assert-Rejected 'Allow ranking before remote Seed confirmation' {
+    param($root)
+    Set-ContractMutation $root { param($value) $value.holdout_selection_policy.ranking_before_remote_seed_confirmation_allowed = $true }
+}
+
+Assert-Rejected 'Allow seed push retry with recreated commit' {
+    param($root)
+    Set-ContractMutation $root { param($value) $value.holdout_selection_policy.seed_push_retry_requires_same_commit_sha = $false }
 }
 
 Assert-Rejected 'Allow holdout seed commit history rewrite' {
@@ -156,6 +262,11 @@ Assert-Rejected 'Change deterministic holdout ranking hash' {
         param($value)
         $value.holdout_selection_policy.ranking_hash = 'RANDOM_MANUAL_SELECTION'
     }
+}
+
+Assert-Rejected 'Resolve profile seeds before deterministic selection' {
+    param($root)
+    Set-ContractMutation $root { param($value) $value.holdout_selection_policy.profile_seed_entity_resolution_after_selection_only = $false }
 }
 
 Assert-Rejected 'Allow holdout recommendation preflight' {
@@ -256,8 +367,38 @@ Assert-Rejected 'Change frozen holdout selection procedure in prose only' {
     param($root)
     $path = Join-Path $root 'docs/QMBT_2R_PROTOCOL.md'
     $text = [IO.File]::ReadAllText($path).Replace(
-        'The frozen pool contains exactly:',
-        'The frozen pool may contain:'
+        'The candidate pool contains exactly:',
+        'The candidate pool may contain:'
+    )
+    [IO.File]::WriteAllText($path, $text)
+}
+
+Assert-Rejected 'Change locality radius in prose only' {
+    param($root)
+    $path = Join-Path $root 'docs/QMBT_2R_PROTOCOL.md'
+    $text = [IO.File]::ReadAllText($path).Replace(
+        '- set `filter.location.radius=0`;',
+        '- omit `filter.location.radius`;'
+    )
+    [IO.File]::WriteAllText($path, $text)
+}
+
+Assert-Rejected 'Allow automatic unresolved-city replacement in prose only' {
+    param($root)
+    $path = Join-Path $root 'docs/QMBT_2R_PROTOCOL.md'
+    $text = [IO.File]::ReadAllText($path).Replace(
+        '**stop for human review and do not create\na Seed Commit**.',
+        '**automatically replace the city and continue**.'
+    )
+    [IO.File]::WriteAllText($path, $text)
+}
+
+Assert-Rejected 'Allow Seed Commit alternatives in prose only' {
+    param($root)
+    $path = Join-Path $root 'docs/QMBT_2R_PROTOCOL.md'
+    $text = [IO.File]::ReadAllText($path).Replace(
+        '- do not generate, score, compare, or discard alternative candidate Seed\n  Commits locally or remotely;',
+        '- generate alternative candidate Seed Commits and pick one;'
     )
     [IO.File]::WriteAllText($path, $text)
 }
@@ -289,4 +430,4 @@ Assert-Accepted 'Modify unrelated workflow without live-Qloo indicators' {
     Add-Content -LiteralPath (Join-Path $root '.github/workflows/qloo-evidence-audit.yml') -Value "`n# harmless documentation-only workflow edit"
 }
 
-Write-Output "QMBT-2R validator tests passed: $script:passed checks, including frozen K=18, development-only structural validation, bounded retry/stop policy, deterministic holdout selection, safe CI evolution, and rejected unsafe mutations. No live calls executed."
+Write-Output "QMBT-2R validator tests passed: $script:passed checks, including frozen K=18, development-only structural validation, bounded recommendation retry policy, QMBT-2R-LOC-v1 locality rules, SINGLE_SHOT_REMOTE_SEED_COMMIT, deterministic holdout selection, safe CI evolution, and rejected unsafe mutations. No live calls executed."
