@@ -214,8 +214,10 @@ $requiredProse = @(
     'No failed or weak confirmatory output may trigger replacement or reselection.',
     'No live development request is authorized by this protocol amendment.'
 )
+$draftNormalized = [regex]::Replace($draft, '\s+', ' ')
 foreach ($fragment in $requiredProse) {
-    Assert-Protocol ($draft.Contains($fragment)) "Required normative prose changed or disappeared: $fragment"
+    $fragmentNormalized = [regex]::Replace($fragment, '\s+', ' ')
+    Assert-Protocol ($draftNormalized.Contains($fragmentNormalized)) "Required normative prose changed or disappeared: $fragment"
 }
 
 $workflowRoot = Join-Path $RepositoryRoot '.github/workflows'
