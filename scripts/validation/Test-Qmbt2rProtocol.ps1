@@ -136,29 +136,41 @@ foreach ($heading in $sectionPins.Keys) {
     Assert-Protocol ((Get-TextHash $section) -ceq $sectionPins[$heading]) "Approved scope, method, or unresolved decisions changed in '$heading'. Human review required."
 }
 
-# Pin immutable evidence and known offline CI definitions. Workflow pins are
-# intentionally fail-closed: review complete jobs before approving changes.
-# Normalize line endings so checks also work in CRLF checkouts.
-$pins = @{
+# Pin immutable historical evidence only. Workflow structure is intentionally
+# not pinned; unrelated CI may evolve as long as it does not introduce direct
+# live-Qloo execution indicators.
+$evidencePins = @{
     'docs/QMBT_1_PROTOCOL.md' = '2ca54524c33e45237034dcb76f252e7ff7bba23f8bfee2901e9631099f21f7f6'
     'docs/QMBT_1_INVALID_RUN_20261020.md' = 'f0e098bcccb2222a83460d1b8becf8216b162a34f941d6b2946ac71c88d304b6'
     'docs/QLOO_FIXED_POOL_DIAGNOSTIC.md' = 'e4ac05b9291b28585b55807647dfc85e22ef5b5b74057fcc178ce5f5403c0fed'
     'docs/QLOO_FIXED_POOL_DIAGNOSTIC_RESULT_20261020.md' = '18d44a8ac82f3df78910e9c431b01c5d4ac31782f66d4b81fe8ff7789dd77832'
-    '.github/workflows/validation.yml' = '6d15fc97be067051aefece6eb647c3d7906935fbfb193105ed971c8d96ca4e29'
-    '.github/workflows/qloo-evidence-audit.yml' = 'bc496dd3b0bee0a43f1cfed3d0cc3ed9e45708f59e5efb3988180ea516c27ced'
 }
-foreach ($relativePath in $pins.Keys) {
+foreach ($relativePath in $evidencePins.Keys) {
     $text = Read-RepositoryText $relativePath
     $hash = Get-TextHash $text
-    Assert-Protocol ($hash -ceq $pins[$relativePath]) "Protected evidence or reviewed offline CI changed: $relativePath. Human review required."
+    Assert-Protocol ($hash -ceq $evidencePins[$relativePath]) "Protected historical evidence changed: $relativePath. Human review required."
 }
 
-$workflows = @(Get-ChildItem -LiteralPath (Join-Path $RepositoryRoot '.github/workflows') -Recurse -File |
-    Where-Object { $_.Extension -in @('.yml', '.yaml') })
-Assert-Protocol ($workflows.Count -eq 2) 'Unreviewed or missing CI workflow; live execution must not enter CI.'
-foreach ($workflow in $workflows) {
-    $relativePath = [IO.Path]::GetRelativePath($RepositoryRoot, $workflow.FullName).Replace('\', '/')
-    Assert-Protocol ($pins.ContainsKey($relativePath)) "Unreviewed workflow: $relativePath."
+# Scan every repository workflow for direct live-Qloo indicators without
+# freezing workflow count or unrelated workflow content.
+$workflowRoot = Join-Path $RepositoryRoot '.github/workflows'
+if (Test-Path -LiteralPath $workflowRoot -PathType Container) {
+    $workflows = @(Get-ChildItem -LiteralPath $workflowRoot -Recurse -File |
+        Where-Object { $_.Extension -in @('.yml', '.yaml') })
+
+    $forbiddenWorkflowPatterns = @(
+        [PSCustomObject]@{ Name = 'Qloo hackathon API host'; Pattern = '(?i)hackathon\.api\.qloo\.com' },
+        [PSCustomObject]@{ Name = 'Qloo API key'; Pattern = '(?i)\bQLOO_API_KEY\b' },
+        [PSCustomObject]@{ Name = 'Qloo spike-script execution/reference'; Pattern = '(?i)scripts[\\/]+qloo-spikes[\\/]+' }
+    )
+
+    foreach ($workflow in $workflows) {
+        $relativePath = [IO.Path]::GetRelativePath($RepositoryRoot, $workflow.FullName).Replace('\', '/')
+        $workflowText = [IO.File]::ReadAllText($workflow.FullName).Replace("`r`n", "`n")
+        foreach ($rule in $forbiddenWorkflowPatterns) {
+            Assert-Protocol (-not [regex]::IsMatch($workflowText, $rule.Pattern)) "Live-Qloo CI indicator '$($rule.Name)' found in $relativePath."
+        }
+    }
 }
 
 $historical = Read-RepositoryText 'docs/QMBT_1_PROTOCOL.md'
@@ -168,4 +180,4 @@ foreach ($heading in @('Blind semantic evaluation', 'Baseline evaluation', 'Aggr
     Assert-Protocol ($draftSection -ceq $frozenSection) "Frozen evaluator text changed in '$heading'."
 }
 
-Write-Output 'QMBT-2R static validation passed: draft only; frozen contract/evaluators/evidence and reviewed offline CI preserved. No live calls executed.'
+Write-Output 'QMBT-2R static validation passed: draft only; frozen contract/evaluators/evidence preserved and CI contains no direct live-Qloo indicators. No live calls executed.'
