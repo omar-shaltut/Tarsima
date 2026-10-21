@@ -96,9 +96,16 @@ foreach ($field in @('baseline_both_sides_required', 'aggregate_both_cities_requ
     }
 }
 
-foreach ($field in @('holdout_selection_procedure', 'final_holdout_identities',
-    'live_api_stop_conditions')) {
-    Assert-Rejected "Resolve human decision $field" {
+Assert-Rejected 'Resolve final holdout identities without reviewed selection output' {
+    param($root)
+    Set-ContractMutation $root {
+        param($value)
+        $value.human_decisions.final_holdout_identities = 'UNAPPROVED_IDENTITIES'
+    }
+}
+
+foreach ($field in @('holdout_selection_procedure', 'live_api_stop_conditions')) {
+    Assert-Rejected "Change frozen human decision $field" {
         param($root)
         Set-ContractMutation $root { param($value) $value.human_decisions[$field] = 'UNAPPROVED_DECISION' }
     }
@@ -114,6 +121,64 @@ Assert-Rejected 'Change frozen development validation method' {
     Set-ContractMutation $root {
         param($value)
         $value.human_decisions.depth_development_validation_method = 'UNAPPROVED_ALTERNATIVE'
+    }
+}
+
+Assert-Rejected 'Change frozen holdout city pool size' {
+    param($root)
+    Set-ContractMutation $root { param($value) $value.holdout_selection_policy.city_pool_size = 10 }
+}
+
+Assert-Rejected 'Change frozen holdout profile-pair pool size' {
+    param($root)
+    Set-ContractMutation $root { param($value) $value.holdout_selection_policy.profile_pair_pool_size = 8 }
+}
+
+Assert-Rejected 'Allow Qloo Insights during holdout pool construction' {
+    param($root)
+    Set-ContractMutation $root {
+        param($value)
+        $value.holdout_selection_policy.qloo_insights_for_pool_construction_allowed = $true
+    }
+}
+
+Assert-Rejected 'Allow holdout seed commit history rewrite' {
+    param($root)
+    Set-ContractMutation $root {
+        param($value)
+        $value.holdout_selection_policy.seed_commit_history_rewrite_allowed = $true
+    }
+}
+
+Assert-Rejected 'Change deterministic holdout ranking hash' {
+    param($root)
+    Set-ContractMutation $root {
+        param($value)
+        $value.holdout_selection_policy.ranking_hash = 'RANDOM_MANUAL_SELECTION'
+    }
+}
+
+Assert-Rejected 'Allow holdout recommendation preflight' {
+    param($root)
+    Set-ContractMutation $root {
+        param($value)
+        $value.holdout_selection_policy.qloo_recommendation_preflight_allowed = $true
+    }
+}
+
+Assert-Rejected 'Allow single-seed substitution after holdout selection' {
+    param($root)
+    Set-ContractMutation $root {
+        param($value)
+        $value.holdout_selection_policy.single_seed_substitution_allowed = $true
+    }
+}
+
+Assert-Rejected 'Allow post-confirmatory holdout reselection' {
+    param($root)
+    Set-ContractMutation $root {
+        param($value)
+        $value.holdout_selection_policy.post_first_confirmatory_reselection_allowed = $true
     }
 }
 
@@ -187,6 +252,16 @@ Assert-Rejected 'Change frozen development validation method in prose only' {
     [IO.File]::WriteAllText($path, $text)
 }
 
+Assert-Rejected 'Change frozen holdout selection procedure in prose only' {
+    param($root)
+    $path = Join-Path $root 'docs/QMBT_2R_PROTOCOL.md'
+    $text = [IO.File]::ReadAllText($path).Replace(
+        'The frozen pool contains exactly:',
+        'The frozen pool may contain:'
+    )
+    [IO.File]::WriteAllText($path, $text)
+}
+
 Assert-Rejected 'Rewrite historical invalid evidence' {
     param($root)
     Add-Content -LiteralPath (Join-Path $root 'docs/QMBT_1_INVALID_RUN_20261020.md') -Value 'REINTERPRETED_AS_SUCCESS'
@@ -214,4 +289,4 @@ Assert-Accepted 'Modify unrelated workflow without live-Qloo indicators' {
     Add-Content -LiteralPath (Join-Path $root '.github/workflows/qloo-evidence-audit.yml') -Value "`n# harmless documentation-only workflow edit"
 }
 
-Write-Output "QMBT-2R validator tests passed: $script:passed checks, including frozen K=18, frozen development-only structural validation, safe CI evolution, and rejected unsafe mutations. No live calls executed."
+Write-Output "QMBT-2R validator tests passed: $script:passed checks, including frozen K=18, development-only structural validation, bounded retry/stop policy, deterministic holdout selection, safe CI evolution, and rejected unsafe mutations. No live calls executed."
