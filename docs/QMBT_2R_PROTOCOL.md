@@ -46,9 +46,11 @@ deduplication, backfill, and final display is:
 An entity appears once per final list; later category blocks backfill in Qloo
 return order after earlier blocks claim an entity. `retrieval_depth_K` is frozen
 at `18` by human decision. Empirical feasibility of filling these quotas remains
-unresolved. This draft does not invent an API retry, omission, or quota-shortfall
-policy. Restaurant retrieval remains validation infrastructure, not a halal
-endorsement; production compliance filtering remains mandatory and unchanged.
+an operational question. The frozen retry/stop policy below governs incomplete
+API attempts only; it must never be used to resample a completed valid response
+or improve a returned list. Restaurant retrieval remains validation
+infrastructure, not a halal endorsement; production compliance filtering remains
+mandatory and unchanged.
 
 ## Human decisions before pre-registration
 
@@ -58,7 +60,7 @@ endorsement; production compliance filtering remains mandatory and unchanged.
 | Final holdout identities | `HUMAN_DECISION_REQUIRED` |
 | Retrieval depth K | `18` — **FROZEN HUMAN DECISION** |
 | Development-only method for validating K | `PRIOR_CASES_SINGLE_PASS_STRUCTURAL_QUOTA_FEASIBILITY` — **FROZEN HUMAN DECISION** |
-| Stop conditions depending on unvalidated live API behavior | `HUMAN_DECISION_REQUIRED` |
+| Live API retry/stop conditions | `EXACT_REQUEST_BOUNDED_RETRY_V1` — **FROZEN HUMAN DECISION** |
 
 `retrieval_depth_K = 18` is frozen before any new retrieval. It is derived
 structurally, not tuned on taste quality. For category position `j` in the fixed
@@ -74,13 +76,13 @@ freezes the smallest worst-case structural depth: `K = 18`.
 
 This is a combinatorial backfill bound, not an empirical claim about Qloo API
 behavior. It applies only when a category retrieval returns at least 18 distinct
-entity IDs. API acceptance of the requested depth, actual development quota
-fill, and live-dependent stop conditions remain operational questions. Semantic
-quality, affinity magnitudes, evaluator preference, or confirmatory holdout
-output must not be used to change K.
+entity IDs. API acceptance of the requested depth and actual development quota
+fill remain operational questions. Semantic quality, affinity magnitudes,
+evaluator preference, or confirmatory holdout output must not be used to change
+K.
 
-No holdout-selection procedure, holdout identities, or live-dependent stop
-conditions are chosen here. The development-only validation method is frozen
+No holdout-selection procedure or holdout identities are chosen here. The
+development-only validation method and live API retry/stop policy are frozen
 below, but this draft still authorizes no live retrieval. The four-case aggregate
 framework below is inherited; it does not designate replacement profiles or
 cities. Development validation must not inspect new confirmatory outputs or
@@ -107,7 +109,7 @@ independently with `take = 18`. This is one registered structural pass:
 For each completed category response, record at minimum:
 
 - request condition, city, category ID, and requested `take`;
-- API outcome/status;
+- API outcome/status and attempt count;
 - returned entity count and distinct entity-ID count;
 - returned entity IDs in Qloo order;
 - cross-category duplicate skips;
@@ -128,19 +130,72 @@ structural result to be `DEVELOPMENT_K_FEASIBLE`.
 
 A returned distinct-ID count below 18 is telemetry, not by itself a failure, if
 the deterministic assembly still fills all six quotas. Conversely, a completed
-response set that cannot fill a quota is structural evidence of
-`DEVELOPMENT_K_NOT_FEASIBLE`; K must not be increased or retuned automatically.
+valid response set that cannot fill a quota is structural evidence of
+`DEVELOPMENT_K_NOT_FEASIBLE`; the request must not be retried because of its
+content, and K must not be increased or retuned automatically.
 
-Transport/API errors, rate limits, malformed responses, or other incomplete
-requests are not reclassified as K failures by this method. Their retry/stop
-handling belongs to the separately frozen live-API stop conditions, which remain
-`HUMAN_DECISION_REQUIRED`.
+Transport/API errors, rate limits, malformed or truncated responses, and other
+incomplete attempts are handled only by the frozen
+`EXACT_REQUEST_BOUNDED_RETRY_V1` policy below. They are not reclassified as K
+failures.
 
 No evaluator is run, no semantic or baseline advantage is scored, no affinity
 comparison is used, and no new holdout is accessed. Exact repeatability across
-multiple live passes is not a success criterion for this structural gate. Any
-stability study, if later justified, must be registered separately and cannot be
-used to retune K.
+multiple successful live passes is not a success criterion for this structural
+gate. Any stability study, if later justified, must be registered separately
+and cannot be used to retune K.
+
+## Live API retry and stop policy
+
+Policy identifier: `EXACT_REQUEST_BOUNDED_RETRY_V1`.
+
+The purpose of retry is to recover from an incomplete API attempt, never to
+resample a completed Qloo recommendation response. Every attempt and outcome
+must be logged. A retry must preserve the same request semantics and all
+experiment parameters, including profile signals, city, category, filters,
+`take = 18`, and condition. No parameter mutation, fallback category, entity
+substitution, or result-based retry is allowed.
+
+A category request has at most three total attempts: the initial attempt plus
+at most two retries. Retry is permitted only for:
+
+- network connection failure or client timeout;
+- HTTP `408`;
+- HTTP `429`;
+- HTTP `5xx`; or
+- HTTP `2xx` whose body is truncated, cannot be parsed as JSON, or lacks the
+  required result container needed to enumerate returned entities.
+
+For retryable outcomes other than `429`, wait 2 seconds before attempt 2 and
+8 seconds before attempt 3. For `429`, use a valid `Retry-After` value when it is
+120 seconds or less; if the header is absent or invalid, use the same 2-second /
+8-second fallback. A `Retry-After` value greater than 120 seconds aborts the
+registered run rather than extending or modifying the protocol.
+
+HTTP `4xx` responses other than `408` and `429` are non-retryable and abort the
+registered run. A parseable `2xx` response with a valid result container is a
+completed response even when it contains zero entities, fewer than 18 entities,
+duplicate IDs, or no optional affinity value. Such a completed response must
+never be retried because of its content.
+
+The first completed valid response is accepted. Previously successful category
+requests must not be repeated within the same registered run. If a retryable
+request still has no completed valid response after three attempts, or any
+non-retryable condition occurs, abort the entire registered run as
+`INCOMPLETE_EXECUTION_API_OR_TRANSPORT`. Partial results must not be evaluated.
+
+A new registered run after such an abort requires explicit human authorization.
+It must use the same frozen protocol unless a separately reviewed protocol
+amendment is committed first. Partial outputs from the aborted run must not be
+used to change K, categories, holdouts, thresholds, retry rules, or any other
+confirmatory choice.
+
+Completed valid responses that fail quota assembly are retrieval outcomes, not
+transport errors. In development they produce `DEVELOPMENT_K_NOT_FEASIBLE` under
+the frozen structural gate. In confirmatory execution, the affected case is
+`CONFIRMATORY_CASE_STRUCTURAL_FAIL`, receives no semantic/baseline positive
+credit, and remains part of the four-case denominator. It must not be dropped,
+replaced, or retried for a different result.
 
 ## Static contract
 
@@ -182,12 +237,30 @@ update to make a failing check pass.
   "answer_key_hidden_until_all_responses": true,
   "requires_new_holdout_set": true,
   "prior_case_role": "DEVELOPMENT_DIAGNOSTIC_ONLY",
+  "live_api_policy": {
+    "policy_id": "EXACT_REQUEST_BOUNDED_RETRY_V1",
+    "max_attempts_per_request": 3,
+    "retryable_outcomes": ["NETWORK_OR_TIMEOUT", "HTTP_408", "HTTP_429", "HTTP_5XX", "MALFORMED_OR_TRUNCATED_2XX"],
+    "fallback_backoff_seconds": [2, 8],
+    "retry_after_max_seconds": 120,
+    "nonretryable_http_4xx_except": [408, 429],
+    "retry_payload_mutation_allowed": false,
+    "accept_first_valid_response": true,
+    "retry_completed_valid_response": false,
+    "abort_entire_run_on_nonretryable_or_exhausted": true,
+    "partial_results_evaluable": false,
+    "fresh_run_requires_human_authorization": true,
+    "completed_quota_shortfall_retryable": false,
+    "development_quota_shortfall_classification": "DEVELOPMENT_K_NOT_FEASIBLE",
+    "confirmatory_quota_shortfall_classification": "CONFIRMATORY_CASE_STRUCTURAL_FAIL",
+    "exhausted_or_nonretryable_classification": "INCOMPLETE_EXECUTION_API_OR_TRANSPORT"
+  },
   "human_decisions": {
     "holdout_selection_procedure": "HUMAN_DECISION_REQUIRED",
     "final_holdout_identities": "HUMAN_DECISION_REQUIRED",
     "retrieval_depth_K": 18,
     "depth_development_validation_method": "PRIOR_CASES_SINGLE_PASS_STRUCTURAL_QUOTA_FEASIBILITY",
-    "live_api_stop_conditions": "HUMAN_DECISION_REQUIRED"
+    "live_api_stop_conditions": "EXACT_REQUEST_BOUNDED_RETRY_V1"
   }
 }
 ```
@@ -268,8 +341,9 @@ the Qloo API or use Qloo secrets. The checks validate the contract, frozen
 evaluator text, evidence preservation, and absence of direct live-Qloo CI
 execution indicators; they cannot establish API feasibility or empirically
 validate the hypothesis. The approved scope, retrieval-design prose, frozen
-K decision, development-only validation method, and unresolved-decision state
-are pinned too, so prose-only changes cannot bypass the static contract.
+K decision, development-only validation method, live API retry/stop policy, and
+remaining unresolved holdout decisions are pinned too, so prose-only changes
+cannot bypass the static contract.
 
 Stop at PR review. Holdout selection, live calls, execution harnesses, UI,
 agent-loop expansion, policy changes, and merging are outside this draft task.

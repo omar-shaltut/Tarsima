@@ -81,9 +81,9 @@ try {
     throw "QMBT-2R validation failed: Invalid static contract. $($_.Exception.Message)"
 }
 
-# These values encode approved history plus the human-approved K=18 and
-# development-only structural validation decisions. Remaining design fields
-# must stay unresolved in this draft task.
+# These values encode approved history plus the human-approved K=18,
+# development-only structural validation, and bounded live-API retry policy.
+# Holdout choices remain unresolved in this draft task.
 $expected = @{
     protocol = 'QMBT-2R'
     status = 'DRAFT / NOT YET PRE-REGISTERED'
@@ -115,27 +115,46 @@ $expected = @{
     answer_key_hidden_until_all_responses = $true
     requires_new_holdout_set = $true
     prior_case_role = 'DEVELOPMENT_DIAGNOSTIC_ONLY'
+    live_api_policy = @{
+        policy_id = 'EXACT_REQUEST_BOUNDED_RETRY_V1'
+        max_attempts_per_request = 3
+        retryable_outcomes = @('NETWORK_OR_TIMEOUT', 'HTTP_408', 'HTTP_429', 'HTTP_5XX', 'MALFORMED_OR_TRUNCATED_2XX')
+        fallback_backoff_seconds = @(2, 8)
+        retry_after_max_seconds = 120
+        nonretryable_http_4xx_except = @(408, 429)
+        retry_payload_mutation_allowed = $false
+        accept_first_valid_response = $true
+        retry_completed_valid_response = $false
+        abort_entire_run_on_nonretryable_or_exhausted = $true
+        partial_results_evaluable = $false
+        fresh_run_requires_human_authorization = $true
+        completed_quota_shortfall_retryable = $false
+        development_quota_shortfall_classification = 'DEVELOPMENT_K_NOT_FEASIBLE'
+        confirmatory_quota_shortfall_classification = 'CONFIRMATORY_CASE_STRUCTURAL_FAIL'
+        exhausted_or_nonretryable_classification = 'INCOMPLETE_EXECUTION_API_OR_TRANSPORT'
+    }
     human_decisions = @{
         holdout_selection_procedure = 'HUMAN_DECISION_REQUIRED'
         final_holdout_identities = 'HUMAN_DECISION_REQUIRED'
         retrieval_depth_K = 18
         depth_development_validation_method = 'PRIOR_CASES_SINGLE_PASS_STRUCTURAL_QUOTA_FEASIBILITY'
-        live_api_stop_conditions = 'HUMAN_DECISION_REQUIRED'
+        live_api_stop_conditions = 'EXACT_REQUEST_BOUNDED_RETRY_V1'
     }
 }
 Assert-ContractValue $expected $contract
 
-# Protect normative prose as well as JSON: a prose-only replacement of the
-# method, frozen K, development gate, or an unresolved placeholder must fail.
+# Protect normative prose as well as JSON: prose-only changes to frozen
+# retrieval, development, retry/stop, or unresolved holdout decisions must fail.
 $sectionPins = @{
     'Evidence and scope' = '44a8a38766bd5edcc544bdd0273cf3d90ad0e7083fdedcc5e8a55d3bc368b459'
-    'Estimand and approved retrieval design' = 'bab710882d66fbd70925f40e0b1ae8b4a0fdbb6ca5e3c2b7e6def646ff01afbf'
-    'Human decisions before pre-registration' = '9643be10e716ef2efbaefe1bf47c81877a18576e33ae483d7d98bb68910f0eb9'
-    'Development-only validation method for K=18' = '4b2bf8a0cee633001c01df2f5e0ebae1a3f21d8df1680520f20a252f3c15bdb6'
+    'Estimand and approved retrieval design' = 'd9bfeb1cd319a1ff1ca81b626446a81facf3989c13b2e0cac3b1d04f3649c31c'
+    'Human decisions before pre-registration' = '20d4f003cad7103369092558cb9f7003801ce8ea4b41ed7628c712c2f8e0511f'
+    'Development-only validation method for K=18' = 'ffa4ef65169fa9e73a8a40a39488ad9247e596ed965007acd5dc68625dfb1f19'
+    'Live API retry and stop policy' = 'bba51c8203aa89e53a150886c64975fd3958b309bf802c146f04140502a1ee05'
 }
 foreach ($heading in $sectionPins.Keys) {
     $section = Get-UniqueSection $draft $heading
-    Assert-Protocol ((Get-TextHash $section) -ceq $sectionPins[$heading]) "Approved scope, frozen K, development method, or unresolved decisions changed in '$heading'. Human review required."
+    Assert-Protocol ((Get-TextHash $section) -ceq $sectionPins[$heading]) "Approved scope, frozen K, development method, retry/stop policy, or unresolved holdout decisions changed in '$heading'. Human review required."
 }
 
 # Pin immutable historical evidence only. Workflow structure is intentionally
@@ -182,4 +201,4 @@ foreach ($heading in @('Blind semantic evaluation', 'Baseline evaluation', 'Aggr
     Assert-Protocol ($draftSection -ceq $frozenSection) "Frozen evaluator text changed in '$heading'."
 }
 
-Write-Output 'QMBT-2R static validation passed: draft only; K=18 and development-only structural method frozen; contract/evaluators/evidence preserved and CI contains no direct live-Qloo indicators. No live calls executed.'
+Write-Output 'QMBT-2R static validation passed: draft only; K=18, development-only structural method, and bounded retry/stop policy frozen; contract/evaluators/evidence preserved and CI contains no direct live-Qloo indicators. No live calls executed.'
