@@ -136,7 +136,7 @@ function New-FrozenSearchUri {
 
     $query = [Uri]::EscapeDataString([string]$Candidate.lookup_query)
     $type = [Uri]::EscapeDataString($LocalityType)
-    return "$SearchBaseUrl?query=$query&types=$type&page=$Page&take=$Take&sort_by=$SortBy"
+    return "${SearchBaseUrl}?query=$query&types=$type&page=$Page&take=$Take&sort_by=$SortBy"
 }
 
 function Save-RawBody {
