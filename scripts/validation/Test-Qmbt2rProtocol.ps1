@@ -185,17 +185,12 @@ $expected = @{
 }
 Assert-ContractValue $expected $contract
 
-# The separate direct-location validator owns the exact eight query strings and
-# radius/fallback manifest. Invoke it offline from this validator so the protocol
-# and machine-readable geography contract cannot drift independently.
 $directValidator = Join-Path $RepositoryRoot 'scripts/validation/Test-Qmbt2rDirectLocation.ps1'
 Assert-Protocol (Test-Path -LiteralPath $directValidator -PathType Leaf) 'Missing direct-location validator.'
 try { & $directValidator -RepositoryRoot $RepositoryRoot > $null } catch {
     throw "QMBT-2R validation failed: Direct-location contract failed. $($_.Exception.Message)"
 }
 
-# Pin immutable historical evidence. V1/V2 locality failures remain evidence;
-# the new operationalization supersedes the prerequisite but does not rewrite history.
 $evidencePins = @{
     'docs/QMBT_1_PROTOCOL.md' = '2ca54524c33e45237034dcb76f252e7ff7bba23f8bfee2901e9631099f21f7f6'
     'docs/QMBT_1_INVALID_RUN_20261020.md' = 'f0e098bcccb2222a83460d1b8becf8216b162a34f941d6b2946ac71c88d304b6'
@@ -207,9 +202,8 @@ foreach ($relativePath in $evidencePins.Keys) {
     Assert-Protocol ((Get-TextHash $text) -ceq $evidencePins[$relativePath]) "Protected historical evidence changed: $relativePath. Human review required."
 }
 
-# Normative prose requirements that must accompany the machine contract.
 $requiredProse = @(
-    'QMBT-2R-LOC-DIRECT-QUERY-V1` supersedes the prior `QMBT-2R-LOC-v1` locality-ID prerequisite',
+    '`QMBT-2R-LOC-DIRECT-QUERY-V1` supersedes the prior `QMBT-2R-LOC-v1` locality-ID prerequisite',
     'No pre-Seed Qloo locality-ID resolution is required.',
     'set `filter.location.query=<frozen direct query>`;',
     'set `filter.location.radius=0`;',
@@ -224,8 +218,6 @@ foreach ($fragment in $requiredProse) {
     Assert-Protocol ($draft.Contains($fragment)) "Required normative prose changed or disappeared: $fragment"
 }
 
-# Scan every repository workflow for direct live-Qloo indicators without
-# freezing unrelated workflow evolution.
 $workflowRoot = Join-Path $RepositoryRoot '.github/workflows'
 if (Test-Path -LiteralPath $workflowRoot -PathType Container) {
     $workflows = @(Get-ChildItem -LiteralPath $workflowRoot -Recurse -File |
@@ -244,7 +236,6 @@ if (Test-Path -LiteralPath $workflowRoot -PathType Container) {
     }
 }
 
-# Evaluator rules remain inherited verbatim from QMBT-1.
 $historical = Read-RepositoryText 'docs/QMBT_1_PROTOCOL.md'
 foreach ($heading in @('Blind semantic evaluation', 'Baseline evaluation', 'Aggregate success rule')) {
     $frozenSection = Get-UniqueSection $historical $heading
