@@ -96,12 +96,17 @@ foreach ($field in @('baseline_both_sides_required', 'aggregate_both_cities_requ
     }
 }
 
-foreach ($field in @('holdout_selection_procedure', 'final_holdout_identities', 'retrieval_depth_K',
+foreach ($field in @('holdout_selection_procedure', 'final_holdout_identities',
     'depth_development_validation_method', 'live_api_stop_conditions')) {
     Assert-Rejected "Resolve human decision $field" {
         param($root)
         Set-ContractMutation $root { param($value) $value.human_decisions[$field] = 'UNAPPROVED_DECISION' }
     }
+}
+
+Assert-Rejected 'Change frozen retrieval depth K' {
+    param($root)
+    Set-ContractMutation $root { param($value) $value.human_decisions.retrieval_depth_K = 20 }
 }
 
 Assert-Rejected 'Replace independent retrieval with fixed-pool mode' {
@@ -157,10 +162,10 @@ Assert-Rejected 'Reintroduce fixed-pool rescoring in prose only' {
     [IO.File]::WriteAllText($path, $text)
 }
 
-Assert-Rejected 'Resolve a human-decision placeholder in prose only' {
+Assert-Rejected 'Change frozen retrieval depth in prose only' {
     param($root)
     $path = Join-Path $root 'docs/QMBT_2R_PROTOCOL.md'
-    $text = [IO.File]::ReadAllText($path).Replace('| Retrieval depth K | `HUMAN_DECISION_REQUIRED` |', '| Retrieval depth K | 25 |')
+    $text = [IO.File]::ReadAllText($path).Replace('| Retrieval depth K | `18` — **FROZEN HUMAN DECISION** |', '| Retrieval depth K | `20` — **FROZEN HUMAN DECISION** |')
     [IO.File]::WriteAllText($path, $text)
 }
 
@@ -191,4 +196,4 @@ Assert-Accepted 'Modify unrelated workflow without live-Qloo indicators' {
     Add-Content -LiteralPath (Join-Path $root '.github/workflows/qloo-evidence-audit.yml') -Value "`n# harmless documentation-only workflow edit"
 }
 
-Write-Output "QMBT-2R validator tests passed: $script:passed checks, including safe CI evolution and rejected unsafe mutations. No live calls executed."
+Write-Output "QMBT-2R validator tests passed: $script:passed checks, including frozen K=18, safe CI evolution, and rejected unsafe mutations. No live calls executed."
