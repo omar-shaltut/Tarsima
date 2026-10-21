@@ -56,7 +56,7 @@ mandatory and unchanged.
 
 | Decision | State |
 | --- | --- |
-| Holdout-selection procedure | `HUMAN_DECISION_REQUIRED` |
+| Holdout-selection procedure | `COMMIT_SEEDED_FROZEN_POOL_SELECTION_V1` — **FROZEN HUMAN DECISION** |
 | Final holdout identities | `HUMAN_DECISION_REQUIRED` |
 | Retrieval depth K | `18` — **FROZEN HUMAN DECISION** |
 | Development-only method for validating K | `PRIOR_CASES_SINGLE_PASS_STRUCTURAL_QUOTA_FEASIBILITY` — **FROZEN HUMAN DECISION** |
@@ -81,14 +81,16 @@ fill remain operational questions. Semantic quality, affinity magnitudes,
 evaluator preference, or confirmatory holdout output must not be used to change
 K.
 
-No holdout-selection procedure or holdout identities are chosen here. The
-development-only validation method and live API retry/stop policy are frozen
-below, but this draft still authorizes no live retrieval. The four-case aggregate
-framework below is inherited; it does not designate replacement profiles or
-cities. Development validation must not inspect new confirmatory outputs or
-tune on holdouts. Any eventual completion requires human review, a committed
-pre-registration, and successful repository validation before a separately
-authorized confirmatory run.
+The holdout-selection procedure is frozen below, but the candidate pool and
+final holdout identities are not chosen here. Building and committing that pool
+is a separate human review gate because the seed commit irreversibly determines
+the deterministic ranking. The development-only validation method and live API
+retry/stop policy are also frozen, but this draft still authorizes no live
+retrieval. The four-case aggregate framework below is inherited; it does not
+designate replacement profiles or cities. Development validation must not
+inspect new confirmatory outputs or tune on holdouts. Any eventual completion
+requires human review, a committed pre-registration, and successful repository
+validation before a separately authorized confirmatory run.
 
 ## Development-only validation method for K=18
 
@@ -197,6 +199,76 @@ the frozen structural gate. In confirmatory execution, the affected case is
 credit, and remains part of the four-case denominator. It must not be dropped,
 replaced, or retried for a different result.
 
+## Holdout selection procedure
+
+Policy identifier: `COMMIT_SEEDED_FROZEN_POOL_SELECTION_V1`.
+
+The purpose is to choose confirmatory holdouts without inspecting Qloo Insights
+or recommendation outputs for candidate cities or profiles. The candidate pool
+must be created and human-reviewed before any holdout-selection computation or
+Qloo recommendation retrieval.
+
+The frozen pool contains exactly:
+
+- 8 city candidates, all different from the prior development cities Istanbul
+  and London, each with an explicit committed `canonical_id`, country, city
+  label, latitude, and longitude;
+- 6 profile-pair candidates; each pair contains two profiles, and each profile
+  contains exactly one movie, one brand, and one book seed; and
+- no seed entity used in Pair2 or Pair3, no seed entity repeated anywhere in the
+  candidate pool, and no profile intentionally centered on nightlife, alcohol,
+  gambling, or another prohibited theme.
+
+Candidate eligibility and all explicit `canonical_id` strings must be reviewed
+before the pool is committed. No Qloo Insights/recommendation call may be used
+to decide whether a city, profile, pair, or seed enters the pool.
+
+The commit containing the complete candidate pool and the deterministic
+selection algorithm is the **Seed Commit**. After that commit exists, its full
+Git commit SHA is the selection seed. The Seed Commit must not be amended,
+rebased, squashed, force-rewritten, or otherwise replaced. If repository history
+makes that SHA unreachable or ambiguous before selection is frozen, stop for
+human review rather than silently deriving a new seed.
+
+For every candidate, compute:
+
+`SHA256(seed_commit_sha | QMBT-2R | candidate_type | canonical_id)`
+
+where the separators are the literal ASCII ` | ` sequence shown above and the
+input is UTF-8. Rank ascending by the lowercase hexadecimal SHA-256 digest, with
+`canonical_id` ascending as the deterministic collision tiebreaker.
+
+Select the first two ranked city candidates and the first two ranked profile-pair
+candidates. Their cross-product defines exactly four confirmatory
+profile-pair × city cases. No taste-quality, affinity, evaluator, quota-fill,
+popularity, or recommendation output may influence this ranking or selection.
+
+Only after those provisional profile pairs are selected may exact seed-entity
+resolution be performed for their 12 seeds. Entity resolution is not a Qloo
+Insights/recommendation preflight and must not retrieve venue recommendations.
+If any of the six seeds in a provisional pair cannot be resolved unambiguously
+to exactly one intended entity, reject the entire pair and advance to the next
+profile pair in the already-frozen hash ranking. Do not substitute a single
+seed, edit the pair, or inspect recommendation outputs to decide replacement.
+Continue deterministically until two fully resolved pairs are obtained. If the
+six-pair pool cannot supply two fully resolved pairs, stop for human review; do
+not expand the pool post hoc.
+
+The two selected cities receive no recommendation preflight. Their committed
+coordinates are used as frozen. A later quota shortfall is handled by the
+frozen structural-failure rules; it cannot justify replacing a city.
+
+After entity resolution, commit the selected city identities/coordinates,
+selected profile pairs, all 12 resolved entity IDs, the Seed Commit SHA, ranking
+digests, and any whole-pair deterministic skips. Only then may a later human
+review change protocol status from `DRAFT / NOT YET PRE-REGISTERED` to a
+pre-registered state, after repository validation passes.
+
+From the first confirmatory retrieval onward, holdout cities, selected profile
+pairs, seed identities, resolved entity IDs, K, category framework, evaluator
+thresholds, and selection policy are immutable for that registered experiment.
+No failed or weak confirmatory output may trigger replacement or reselection.
+
 ## Static contract
 
 This machine-readable contract records approved decisions and unresolved
@@ -237,6 +309,31 @@ update to make a failing check pass.
   "answer_key_hidden_until_all_responses": true,
   "requires_new_holdout_set": true,
   "prior_case_role": "DEVELOPMENT_DIAGNOSTIC_ONLY",
+  "holdout_selection_policy": {
+    "policy_id": "COMMIT_SEEDED_FROZEN_POOL_SELECTION_V1",
+    "city_pool_size": 8,
+    "profile_pair_pool_size": 6,
+    "selected_city_count": 2,
+    "selected_profile_pair_count": 2,
+    "confirmatory_cross_product_case_count": 4,
+    "exclude_prior_development_cities": true,
+    "exclude_prior_seed_entities": true,
+    "unique_seed_entities_across_pool": true,
+    "prohibited_theme_exclusion_required": true,
+    "qloo_insights_for_pool_construction_allowed": false,
+    "seed_commit_history_rewrite_allowed": false,
+    "ranking_hash": "SHA256(seed_commit_sha | QMBT-2R | candidate_type | canonical_id)",
+    "rank_ascending": true,
+    "canonical_id_collision_tiebreak_ascending": true,
+    "entity_resolution_after_selection_only": true,
+    "qloo_recommendation_preflight_allowed": false,
+    "unresolved_seed_rejects_entire_pair": true,
+    "single_seed_substitution_allowed": false,
+    "advance_by_frozen_pair_rank": true,
+    "pool_expansion_after_resolution_failure_allowed": false,
+    "final_holdouts_require_post_resolution_commit": true,
+    "post_first_confirmatory_reselection_allowed": false
+  },
   "live_api_policy": {
     "policy_id": "EXACT_REQUEST_BOUNDED_RETRY_V1",
     "max_attempts_per_request": 3,
@@ -256,7 +353,7 @@ update to make a failing check pass.
     "exhausted_or_nonretryable_classification": "INCOMPLETE_EXECUTION_API_OR_TRANSPORT"
   },
   "human_decisions": {
-    "holdout_selection_procedure": "HUMAN_DECISION_REQUIRED",
+    "holdout_selection_procedure": "COMMIT_SEEDED_FROZEN_POOL_SELECTION_V1",
     "final_holdout_identities": "HUMAN_DECISION_REQUIRED",
     "retrieval_depth_K": 18,
     "depth_development_validation_method": "PRIOR_CASES_SINGLE_PASS_STRUCTURAL_QUOTA_FEASIBILITY",
@@ -341,9 +438,9 @@ the Qloo API or use Qloo secrets. The checks validate the contract, frozen
 evaluator text, evidence preservation, and absence of direct live-Qloo CI
 execution indicators; they cannot establish API feasibility or empirically
 validate the hypothesis. The approved scope, retrieval-design prose, frozen
-K decision, development-only validation method, live API retry/stop policy, and
-remaining unresolved holdout decisions are pinned too, so prose-only changes
-cannot bypass the static contract.
+K decision, development-only validation method, live API retry/stop policy,
+holdout-selection policy, and remaining unresolved final holdout identities are
+pinned too, so prose-only changes cannot bypass the static contract.
 
 Stop at PR review. Holdout selection, live calls, execution harnesses, UI,
 agent-loop expansion, policy changes, and merging are outside this draft task.
