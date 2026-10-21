@@ -132,12 +132,12 @@ foreach ($fragment in $requiredCoreFragments) {
 
 $harness = Read-V2Text 'scripts/qloo-preseed/17-qmbt-2r-locality-resolution-v2.ps1'
 $requiredHarnessFragments = @(
-    "Qmbt2rLocalityV2.Core.ps1",
+    'Qmbt2rLocalityV2.Core.ps1',
     "`$PolicyId = 'PRESEED_LOCALITY_EXACT_REQUEST_BOUNDED_RETRY_V1'",
-    '`$MaxAttempts = 3',
-    '`$FallbackBackoffSeconds = @(2, 8)',
-    '`$RetryAfterMaxSeconds = 120',
-    '`$env:QLOO_API_KEY',
+    '$MaxAttempts = 3',
+    '$FallbackBackoffSeconds = @(2, 8)',
+    '$RetryAfterMaxSeconds = 120',
+    '$env:QLOO_API_KEY',
     'preseed-localities-v2.json',
     'qmbt-2r-preseed-locality-v2',
     'LOCALITY_UNRESOLVED',
