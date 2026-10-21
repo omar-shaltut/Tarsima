@@ -140,8 +140,6 @@ $requiredHarnessFragments = @(
     '$env:QLOO_API_KEY',
     'preseed-localities-v2.json',
     'qmbt-2r-preseed-locality-v2',
-    'LOCALITY_UNRESOLVED',
-    'LOCALITY_AMBIGUOUS',
     'PRESEED_LOCALITY_PASS_INCOMPLETE_API_OR_TRANSPORT'
 )
 foreach ($fragment in $requiredHarnessFragments) {
@@ -149,6 +147,8 @@ foreach ($fragment in $requiredHarnessFragments) {
 }
 
 $combinedRuntime = $core + "`n" + $harness
+Assert-V2 ($combinedRuntime.Contains('LOCALITY_UNRESOLVED')) 'V2 runtime must preserve unresolved classification.'
+Assert-V2 ($combinedRuntime.Contains('LOCALITY_AMBIGUOUS')) 'V2 runtime must preserve ambiguous classification.'
 Assert-V2 (-not ($combinedRuntime -match '(?i)/v2/insights')) 'V2 runtime must not call Insights.'
 Assert-V2 (-not ($combinedRuntime -match '(?i)filter\.location')) 'V2 runtime must not send operational location filters.'
 Assert-V2 (-not ($combinedRuntime -match '(?i)signal\.location')) 'V2 runtime must not send location signals.'
