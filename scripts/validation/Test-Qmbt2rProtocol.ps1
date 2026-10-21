@@ -203,7 +203,7 @@ foreach ($relativePath in $evidencePins.Keys) {
 }
 
 $requiredProse = @(
-    '`QMBT-2R-LOC-DIRECT-QUERY-V1` supersedes the prior `QMBT-2R-LOC-v1` locality-ID prerequisite',
+    '`QMBT-2R-LOC-DIRECT-QUERY-V1` supersedes the prior `QMBT-2R-LOC-v1`',
     'No pre-Seed Qloo locality-ID resolution is required.',
     'set `filter.location.query=<frozen direct query>`;',
     'set `filter.location.radius=0`;',
