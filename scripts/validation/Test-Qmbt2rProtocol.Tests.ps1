@@ -255,7 +255,7 @@ Assert-Rejected 'Claim pre-registration in prose only' {
 Assert-Rejected 'Remove direct-query supersession clause' {
     param($root)
     $path = Join-Path $root 'docs/QMBT_2R_PROTOCOL.md'
-    $text = [IO.File]::ReadAllText($path).Replace('`QMBT-2R-LOC-DIRECT-QUERY-V1` supersedes the prior `QMBT-2R-LOC-v1` locality-ID prerequisite.', '`QMBT-2R-LOC-v1` remains required.')
+    $text = [IO.File]::ReadAllText($path).Replace('`QMBT-2R-LOC-DIRECT-QUERY-V1` supersedes the prior `QMBT-2R-LOC-v1`', '`QMBT-2R-LOC-v1` remains required')
     [IO.File]::WriteAllText($path, $text)
 }
 
