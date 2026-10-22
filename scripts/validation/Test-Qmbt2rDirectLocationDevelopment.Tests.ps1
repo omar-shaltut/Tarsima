@@ -249,6 +249,16 @@ Assert-Rejected 'Change completed request-count guard' {
         -New '$requestIndex -ne 71'
 }
 
+Assert-Rejected 'Change registered success status' {
+    param($root)
+
+    Set-TextMutation `
+        -Root $root `
+        -RelativePath 'scripts/qloo-development/18-qmbt-2r-direct-location-development.ps1' `
+        -Old "'DEVELOPMENT_K_FEASIBLE'" `
+        -New "'DEVELOPMENT_STRUCTURAL_PASS'"
+}
+
 Assert-Rejected 'Change core direct-location radius' {
     param($root)
 

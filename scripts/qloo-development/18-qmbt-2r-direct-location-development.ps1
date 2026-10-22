@@ -255,7 +255,7 @@ try {
     )
 
     if ($failedConditions.Count -eq 0) {
-        $summary.status = 'DEVELOPMENT_STRUCTURAL_PASS'
+        $summary.status = 'DEVELOPMENT_K_FEASIBLE'
     } else {
         $summary.status = 'DEVELOPMENT_K_NOT_FEASIBLE'
     }

@@ -272,6 +272,10 @@ Assert-DevContract (
 ) 'Harness no longer verifies exactly 72 completed requests.'
 
 Assert-DevContract (
+    $harness -match "summary\.status\s*=\s*'DEVELOPMENT_K_FEASIBLE'"
+) 'Harness success status no longer matches the registered DEVELOPMENT_K_FEASIBLE contract.'
+
+Assert-DevContract (
     $harness -notmatch '(?i)\$env:QLOO_API_KEY|secrets\.QLOO_API_KEY'
 ) 'Harness must not read a committed or environment API key directly.'
 
