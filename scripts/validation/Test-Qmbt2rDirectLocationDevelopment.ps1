@@ -232,6 +232,15 @@ Assert-DevContract (
 
 $harness = Read-RepoText 'scripts/qloo-development/18-qmbt-2r-direct-location-development.ps1'
 $core = Read-RepoText 'scripts/qloo-development/Qmbt2rDirectLocationDevelopment.Core.ps1'
+$workflow = Read-RepoText '.github/workflows/validation.yml'
+
+Assert-DevContract (
+    $workflow -notmatch '(?i)18-qmbt-2r-direct-location-development\.ps1|LiveAuthorized'
+) 'Repository CI must never invoke or authorize the development live harness.'
+
+Assert-DevContract (
+    $workflow -notmatch '(?i)QLOO_API_KEY|X-Api-Key|hackathon\.api\.qloo\.com'
+) 'Repository CI must not contain Qloo credentials or live endpoint wiring.'
 
 Assert-DevContract (
     $harness -match '\[switch\]\$LiveAuthorized'

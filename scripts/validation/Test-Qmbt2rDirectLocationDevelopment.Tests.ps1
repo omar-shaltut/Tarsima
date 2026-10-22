@@ -11,7 +11,8 @@ $fixtureFiles = @(
     'config/qmbt-2r/direct-location-development-v1.json',
     'docs/QMBT_2R_DIRECT_LOCATION_DEVELOPMENT_V1.md',
     'scripts/qloo-development/18-qmbt-2r-direct-location-development.ps1',
-    'scripts/qloo-development/Qmbt2rDirectLocationDevelopment.Core.ps1'
+    'scripts/qloo-development/Qmbt2rDirectLocationDevelopment.Core.ps1',
+    '.github/workflows/validation.yml'
 )
 
 function New-ValidationFixture {
@@ -276,6 +277,26 @@ Assert-Rejected 'Introduce signal.location fallback' {
         -RelativePath 'scripts/qloo-development/Qmbt2rDirectLocationDevelopment.Core.ps1' `
         -Old '&filter.location.query=' `
         -New '&signal.location=UNAPPROVED&filter.location.query='
+}
+
+Assert-Rejected 'Make CI invoke the live development harness' {
+    param($root)
+
+    Set-TextMutation `
+        -Root $root `
+        -RelativePath '.github/workflows/validation.yml' `
+        -Old 'run: ./scripts/validation/Test-Qmbt2rDirectLocation.Tests.ps1' `
+        -New 'run: ./scripts/qloo-development/18-qmbt-2r-direct-location-development.ps1 -LiveAuthorized'
+}
+
+Assert-Rejected 'Add Qloo credential wiring to CI' {
+    param($root)
+
+    Set-TextMutation `
+        -Root $root `
+        -RelativePath '.github/workflows/validation.yml' `
+        -Old 'permissions:' `
+        -New "env:`n  QLOO_API_KEY: forbidden-fixture-value`n`npermissions:"
 }
 
 Write-Output (
