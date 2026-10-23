@@ -190,15 +190,27 @@
       }
     },
     "selectedVenue": {
-      "allOf": [
-        { "$ref": "#/$defs/sharedCandidate" },
-        {
-          "type": "object",
-          "properties": {
-            "why_it_works": { "type": ["string", "null"], "maxLength": 500 }
-          }
-        }
-      ]
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "entity_id",
+        "retrieval_category",
+        "rank_a",
+        "rank_b",
+        "worst_rank",
+        "total_rank"
+      ],
+      "properties": {
+        "entity_id": { "type": "string", "minLength": 1 },
+        "name": { "type": ["string", "null"] },
+        "display_type": { "type": ["string", "null"] },
+        "retrieval_category": { "$ref": "#/$defs/category" },
+        "rank_a": { "type": "integer", "minimum": 1, "maximum": 18 },
+        "rank_b": { "type": "integer", "minimum": 1, "maximum": 18 },
+        "worst_rank": { "type": "integer", "minimum": 1, "maximum": 18 },
+        "total_rank": { "type": "integer", "minimum": 2, "maximum": 36 },
+        "why_it_works": { "type": ["string", "null"], "maxLength": 500 }
+      }
     },
     "slotStatus": {
       "type": "string",
@@ -211,7 +223,7 @@
     "cultureSlot": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["slot_id", "status", "selected"],
+      "required": ["slot_id", "status", "resolved_category", "selected"],
       "properties": {
         "slot_id": { "const": "CULTURE" },
         "status": { "$ref": "#/$defs/slotStatus" },
@@ -225,12 +237,24 @@
             { "type": "null" }
           ]
         }
-      }
+      },
+      "allOf": [
+        {
+          "if": { "properties": { "status": { "const": "SHARED_PRIMARY" } } },
+          "then": {
+            "properties": {
+              "selected": { "$ref": "#/$defs/selectedVenue" },
+              "resolved_category": { "enum": ["museum", "art_gallery", "book_store"] }
+            }
+          },
+          "else": { "properties": { "selected": { "type": "null" } } }
+        }
+      ]
     },
     "outdoorsSlot": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["slot_id", "status", "selected"],
+      "required": ["slot_id", "status", "resolved_category", "selected"],
       "properties": {
         "slot_id": { "const": "OUTDOORS" },
         "status": { "$ref": "#/$defs/slotStatus" },
@@ -244,12 +268,24 @@
             { "type": "null" }
           ]
         }
-      }
+      },
+      "allOf": [
+        {
+          "if": { "properties": { "status": { "const": "SHARED_PRIMARY" } } },
+          "then": {
+            "properties": {
+              "selected": { "$ref": "#/$defs/selectedVenue" },
+              "resolved_category": { "const": "park" }
+            }
+          },
+          "else": { "properties": { "selected": { "type": "null" } } }
+        }
+      ]
     },
     "cityLifeSlot": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["slot_id", "status", "selected"],
+      "required": ["slot_id", "status", "resolved_category", "selected"],
       "properties": {
         "slot_id": { "const": "CITY_LIFE" },
         "status": { "$ref": "#/$defs/slotStatus" },
@@ -263,7 +299,19 @@
             { "type": "null" }
           ]
         }
-      }
+      },
+      "allOf": [
+        {
+          "if": { "properties": { "status": { "const": "SHARED_PRIMARY" } } },
+          "then": {
+            "properties": {
+              "selected": { "$ref": "#/$defs/selectedVenue" },
+              "resolved_category": { "enum": ["restaurant", "shopping_mall"] }
+            }
+          },
+          "else": { "properties": { "selected": { "type": "null" } } }
+        }
+      ]
     },
     "validationResult": {
       "type": ["object", "null"],
