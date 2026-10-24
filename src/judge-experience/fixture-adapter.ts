@@ -21,8 +21,11 @@ export class FixtureAdapter
     ExplanationSourceAdapter
 {
   readonly adapter_id = 'FIXTURE_ADAPTER_V1';
+  private readonly fixture: FixtureRun;
 
-  constructor(private readonly fixture: FixtureRun) {}
+  constructor(fixture: FixtureRun) {
+    this.fixture = fixture;
+  }
 
   async resolveProfile(
     request: ProfileResolutionRequest,
