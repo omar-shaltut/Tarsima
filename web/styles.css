@@ -29,7 +29,7 @@ button, input, textarea, select { font: inherit; }
 .topbar {
   width: min(1180px, calc(100% - 40px));
   margin: 0 auto;
-  padding: 24px 0;
+  padding: 22px 0;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -76,12 +76,12 @@ button, input, textarea, select { font: inherit; }
 .page {
   width: min(1180px, calc(100% - 40px));
   margin: 0 auto;
-  padding: 42px 0 72px;
+  padding: 12px 0 72px;
 }
 
 .hero {
-  max-width: 850px;
-  padding: 54px 0 44px;
+  max-width: 900px;
+  padding: 34px 0 56px;
 }
 
 .hero-meta, .people-row, .evidence-row {
@@ -108,29 +108,40 @@ button, input, textarea, select { font: inherit; }
   color: var(--accent);
 }
 
+.hero .eyebrow { margin-top: 18px; }
+
 .hero h1 {
-  margin: 12px 0 18px;
+  margin: 9px 0 8px;
   max-width: 780px;
   font-family: Georgia, 'Times New Roman', serif;
-  font-size: clamp(44px, 7vw, 78px);
+  font-size: clamp(52px, 6vw, 72px);
   line-height: 0.98;
   letter-spacing: -0.045em;
   font-weight: 500;
 }
 
-.hero-copy {
-  max-width: 690px;
-  color: var(--muted);
-  font-size: 18px;
-  line-height: 1.65;
+.hero-lead {
+  margin: 0 0 12px;
+  max-width: 720px;
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: clamp(26px, 3.2vw, 38px);
+  line-height: 1.1;
+  letter-spacing: -0.025em;
 }
 
-.people-row { margin-top: 26px; }
+.hero-copy {
+  max-width: 690px;
+  margin: 0;
+  color: var(--muted);
+  font-size: 17px;
+  line-height: 1.6;
+}
+
+.people-row { margin-top: 24px; }
 
 .person-chip {
-  display: grid;
-  grid-template-columns: 30px auto;
-  column-gap: 9px;
+  display: flex;
+  gap: 9px;
   align-items: center;
   padding: 9px 13px 9px 9px;
   background: rgba(255,255,255,0.58);
@@ -139,7 +150,6 @@ button, input, textarea, select { font: inherit; }
 }
 
 .person-avatar {
-  grid-row: 1 / span 2;
   width: 30px;
   height: 30px;
   background: var(--accent-soft);
@@ -148,7 +158,6 @@ button, input, textarea, select { font: inherit; }
 }
 
 .person-name { font-size: 12px; font-weight: 800; }
-.person-ref { color: var(--muted); font-size: 10px; }
 
 .section-heading h2 {
   margin: 7px 0 0;
@@ -180,15 +189,51 @@ button, input, textarea, select { font: inherit; }
 .venue-visual {
   height: 145px;
   margin: 17px 0 18px;
+  padding: 20px;
   border-radius: 18px;
-  display: grid;
-  place-items: center;
-  font-family: Georgia, 'Times New Roman', serif;
-  font-size: 64px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: flex-start;
   background:
-    linear-gradient(135deg, rgba(255,255,255,0.45), transparent),
+    linear-gradient(135deg, rgba(255,255,255,0.52), transparent),
     var(--accent-soft);
   color: var(--accent);
+  overflow: hidden;
+  position: relative;
+}
+
+.venue-visual::after {
+  content: '';
+  position: absolute;
+  width: 150px;
+  height: 150px;
+  border: 1px solid currentColor;
+  border-radius: 50%;
+  opacity: .16;
+  top: -58px;
+  right: -35px;
+}
+
+.venue-visual-slot {
+  position: relative;
+  z-index: 1;
+  font-size: 10px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: .12em;
+  opacity: .72;
+}
+
+.venue-visual-title {
+  position: relative;
+  z-index: 1;
+  margin-top: 6px;
+  max-width: 90%;
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 34px;
+  line-height: 1;
+  letter-spacing: -.03em;
 }
 
 .pick-card:nth-child(2) .venue-visual { background-color: var(--green-soft); color: var(--green); }
@@ -244,7 +289,7 @@ button, input, textarea, select { font: inherit; }
 .empty-icon { font-size: 48px; color: var(--line); }
 
 .trace-panel {
-  margin-top: 54px;
+  margin-top: 46px;
   padding: 34px;
   border-radius: 24px;
   background: var(--ink);
@@ -335,8 +380,10 @@ button, input, textarea, select { font: inherit; }
 @media (max-width: 560px) {
   .topbar, .page { width: min(100% - 24px, 1180px); }
   .demo-badge { display: none; }
-  .page { padding-top: 12px; }
-  .hero { padding-top: 34px; }
+  .page { padding-top: 4px; }
+  .hero { padding-top: 24px; padding-bottom: 44px; }
   .hero h1 { font-size: 48px; }
+  .hero-lead { font-size: 27px; }
+  .hero-copy { font-size: 15px; }
   .trace-panel { padding: 24px 18px; }
 }
