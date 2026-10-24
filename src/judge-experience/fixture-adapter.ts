@@ -32,14 +32,15 @@ export class FixtureAdapter
         profile.side === request.side &&
         profile.profile_ref === request.profile_ref,
     );
+    const match = matches[0];
 
-    if (matches.length !== 1) {
+    if (matches.length !== 1 || !match) {
       throw new Error(
         `Fixture profile resolution failed for ${request.side}:${request.profile_ref}.`,
       );
     }
 
-    return matches[0];
+    return match;
   }
 
   async retrieve(request: RetrievalRequest): Promise<RetrievalResult> {
@@ -56,14 +57,15 @@ export class FixtureAdapter
         retrieval.category === request.category &&
         retrieval.destination_city === request.destination_city,
     );
+    const match = matches[0];
 
-    if (matches.length !== 1) {
+    if (matches.length !== 1 || !match) {
       throw new Error(
         `Fixture retrieval missing for ${request.side}:${request.category}:${request.destination_city}.`,
       );
     }
 
-    return matches[0];
+    return match;
   }
 
   async explain(_request: ExplanationRequest): Promise<ExplanationPayload> {
