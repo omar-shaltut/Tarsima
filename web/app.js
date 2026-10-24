@@ -13,6 +13,19 @@ function rankBadge(label, rank) {
   return badge;
 }
 
+function venueVisual(card) {
+  const visual = element('div', 'venue-visual');
+  visual.append(
+    element('span', 'venue-visual-slot', card.slot_label),
+    element(
+      'span',
+      'venue-visual-title',
+      card.display_type || card.category_label || 'Shared place',
+    ),
+  );
+  return visual;
+}
+
 function recommendationCard(card) {
   const article = element('article', `pick-card ${card.status !== 'SHARED_PRIMARY' ? 'pick-card--empty' : ''}`);
   const eyebrow = element('div', 'pick-label', card.slot_label);
@@ -28,7 +41,7 @@ function recommendationCard(card) {
   }
 
   article.append(
-    element('div', 'venue-visual', card.slot_id === 'CULTURE' ? 'C' : card.slot_id === 'OUTDOORS' ? 'O' : 'L'),
+    venueVisual(card),
     element('div', 'category-pill', card.display_type || card.category_label || 'Shared place'),
     element('h2', 'pick-title', card.name || 'Shared Qloo venue'),
   );
@@ -54,8 +67,8 @@ function progressPanel(progress) {
   const section = element('section', 'trace-panel');
   const heading = element('div', 'section-heading');
   heading.append(
-    element('span', 'eyebrow', 'Verified execution trace'),
-    element('h2', '', 'Built from real pipeline states'),
+    element('span', 'eyebrow', 'Verified execution'),
+    element('h2', '', 'How TastePassport built these picks'),
   );
   section.append(heading);
 
@@ -76,7 +89,7 @@ function renderFailure(payload) {
   app.replaceChildren();
   const panel = element('section', 'failure-card');
   panel.append(
-    element('span', 'eyebrow', 'Fail closed'),
+    element('span', 'eyebrow', 'Unable to verify'),
     element('h1', '', 'We could not safely present shared picks.'),
     element('p', '', payload?.state_label || 'The run did not pass the presentation contract.'),
     element('p', 'muted', 'No venue is substituted or invented when evidence or validation fails.'),
@@ -96,7 +109,8 @@ function renderReady(payload) {
   hero.append(
     meta,
     element('p', 'eyebrow', 'Your shared taste'),
-    element('h1', '', 'Three ways to experience the city together.'),
+    element('h1', '', 'Your Shared Picks'),
+    element('p', 'hero-lead', `Three ways to experience ${payload.destination_city} together.`),
     element('p', 'hero-copy', payload.summary || 'Qloo surfaced shared evidence across your two taste profiles.'),
   );
 
@@ -106,7 +120,6 @@ function renderReady(payload) {
     chip.append(
       element('span', 'person-avatar', person.side),
       element('span', 'person-name', person.label),
-      element('span', 'person-ref', person.profile_ref),
     );
     people.append(chip);
   }
@@ -115,8 +128,8 @@ function renderReady(payload) {
 
   const picksHeading = element('div', 'section-heading picks-heading');
   picksHeading.append(
-    element('span', 'eyebrow', 'Your shared picks'),
-    element('h2', '', 'Different kinds of fit — no fake overall ranking'),
+    element('span', 'eyebrow', 'Culture · Outdoors · City Life'),
+    element('h2', '', 'Shared picks across three parts of the city'),
   );
   app.append(picksHeading);
 
