@@ -113,15 +113,19 @@ Any later code-bearing commit still requires its own validation. Documentation-o
 
 The Next.js Tarsima surface was run locally at `http://localhost:3000` and visually reviewed during the recovered session. Desktop refinements listed above were implemented before the recovered baseline SHA.
 
-The verified Vercel preview was also visually reviewed in a desktop browser in English and Arabic:
+The verified Vercel preview was visually reviewed in its **original English product UI** and passed desktop browser smoke:
 
-- English / LTR: **VISUAL PASS**.
-- Arabic localized rendering: **RENDER PASS**.
-- Full native RTL layout: **NOT YET VERIFIED**.
+- English / LTR product UI: **VISUAL PASS**.
 
-The Arabic screenshots show translated Arabic content without visible clipping, overlap, or grid breakage. However, the page structure still appears visually LTR in important positions: the wordmark remains on the left, the city pill remains on the right, and the cards remain visually ordered Culture → Outdoor → City Life from left to right. Therefore the Arabic evidence must not be described as a full RTL-layout pass yet.
+Additional screenshots were captured after the browser automatically translated the English page into Arabic. Those screenshots are useful only as evidence that browser translation did not visibly destroy the page layout. They are **not** evidence that Tarsima implements Arabic localization, Arabic copy, `dir="rtl"`, RTL CSS behavior, or any product-level Arabic support.
 
-This localization distinction is presentation-only and does not change recommendation ordering, slot authority, or deterministic reconciliation.
+Therefore:
+
+- browser-translated Arabic observation: **INFORMATIONAL ONLY**;
+- native Arabic localization: **NOT IMPLEMENTED / NOT CLAIMED**;
+- native RTL product layout: **NOT IMPLEMENTED / NOT CLAIMED**.
+
+Arabic/RTL is not a validation gate for the current English product unless a separate product requirement explicitly adds Arabic localization later.
 
 ### Responsive DevTools
 
@@ -216,9 +220,8 @@ Protected preview smoke evidence:
 
 Browser smoke evidence:
 
-- English / LTR preview: **VISUAL PASS**.
-- Arabic translated rendering: **RENDER PASS**.
-- Native RTL layout behavior: **NOT YET VERIFIED**.
+- original English / LTR preview: **VISUAL PASS**.
+- browser-generated Arabic translation screenshots: **INFORMATIONAL ONLY**; not product localization evidence.
 
 Current verdict:
 
@@ -229,8 +232,9 @@ Current verdict:
 - `VERCEL_PREVIEW_STATUS = READY`
 - `VERCEL_PROTECTED_CURL_SMOKE = PASS`
 - `VERCEL_BROWSER_SMOKE_EN = VISUAL PASS`
-- `VERCEL_BROWSER_SMOKE_AR_RENDER = PASS`
-- `VERCEL_RTL_LOCALIZATION = NOT_YET_VERIFIED`
+- `ARABIC_BROWSER_TRANSLATION_SCREENSHOTS = INFORMATIONAL_ONLY`
+- `NATIVE_ARABIC_LOCALIZATION = NOT_IMPLEMENTED_NOT_CLAIMED`
+- `NATIVE_RTL_PRODUCT_LAYOUT = NOT_IMPLEMENTED_NOT_CLAIMED`
 
 The user also reports connecting Vercel to ChatGPT; that remains user-reported external setup and is not repository-verifiable.
 
@@ -260,7 +264,8 @@ This checkpoint does **not** authorize:
 - repository rename;
 - automatic PR merge;
 - production overwrite with `vercel --prod`;
-- enabling automatic Git-triggered Vercel deployment without a separate decision.
+- enabling automatic Git-triggered Vercel deployment without a separate decision;
+- adding Arabic localization or RTL behavior without a separate product requirement.
 
 ## 11. Validation gate status and next unresolved product gate
 
@@ -271,17 +276,13 @@ The deployment/build gate for the fixture-backed Tarsima Next.js surface is **PA
 3. Vercel production build completed successfully;
 4. protected HTTP smoke returned the real application;
 5. desktop English/LTR visual smoke passed;
-6. Arabic translated rendering passed without visible breakage;
-7. prior responsive and physical-device visual evidence remains valid.
+6. prior responsive and physical-device visual evidence remains valid.
 
-Full Arabic RTL localization remains an **open presentation gate** because the screenshots do not yet prove RTL-native structural direction.
+The Arabic screenshots came from browser translation and therefore create **no Arabic/RTL product gate** for the current English implementation.
 
 PR #18 remains intentionally **Draft**. Passing the deployment gate does **not** make the fixture data judge-final and does not authorize live Qloo or LLM integration.
 
-The next unresolved product gates are:
-
-- decide and validate the intended Arabic RTL structural behavior if Arabic is judge-facing;
-- separately control the transition from fixture-backed presentation evidence to grounded judge-final content/integration.
+The next unresolved product gate is the separately controlled transition from fixture-backed presentation evidence to grounded judge-final content/integration.
 
 Any such transition must preserve the frozen Qloo/deterministic/AI authority boundaries and requires explicit authorization before any new Qloo network call or holdout access.
 
