@@ -113,12 +113,15 @@ Any later code-bearing commit still requires its own validation. Documentation-o
 
 The Next.js Tarsima surface was run locally at `http://localhost:3000` and visually reviewed during the recovered session. Desktop refinements listed above were implemented before the recovered baseline SHA.
 
-The verified Vercel preview was also visually reviewed in a desktop browser in both supported presentation directions:
+The verified Vercel preview was also visually reviewed in a desktop browser in English and Arabic:
 
 - English / LTR: **VISUAL PASS**.
-- Arabic / RTL: **VISUAL PASS**.
+- Arabic localized rendering: **RENDER PASS**.
+- Full native RTL layout: **NOT YET VERIFIED**.
 
-User-provided screenshots show the same three-slot structure, trust strip, and collapsed trace in both language presentations without visible grid breakage, text clipping, or horizontal overflow. This is visual evidence only; it does not alter the recommendation contract or imply live venue data.
+The Arabic screenshots show translated Arabic content without visible clipping, overlap, or grid breakage. However, the page structure still appears visually LTR in important positions: the wordmark remains on the left, the city pill remains on the right, and the cards remain visually ordered Culture → Outdoor → City Life from left to right. Therefore the Arabic evidence must not be described as a full RTL-layout pass yet.
+
+This localization distinction is presentation-only and does not change recommendation ordering, slot authority, or deterministic reconciliation.
 
 ### Responsive DevTools
 
@@ -213,8 +216,9 @@ Protected preview smoke evidence:
 
 Browser smoke evidence:
 
-- English / LTR preview: **PASS**.
-- Arabic / RTL preview: **PASS**.
+- English / LTR preview: **VISUAL PASS**.
+- Arabic translated rendering: **RENDER PASS**.
+- Native RTL layout behavior: **NOT YET VERIFIED**.
 
 Current verdict:
 
@@ -225,7 +229,8 @@ Current verdict:
 - `VERCEL_PREVIEW_STATUS = READY`
 - `VERCEL_PROTECTED_CURL_SMOKE = PASS`
 - `VERCEL_BROWSER_SMOKE_EN = VISUAL PASS`
-- `VERCEL_BROWSER_SMOKE_AR = VISUAL PASS`
+- `VERCEL_BROWSER_SMOKE_AR_RENDER = PASS`
+- `VERCEL_RTL_LOCALIZATION = NOT_YET_VERIFIED`
 
 The user also reports connecting Vercel to ChatGPT; that remains user-reported external setup and is not repository-verifiable.
 
@@ -259,17 +264,25 @@ This checkpoint does **not** authorize:
 
 ## 11. Validation gate status and next unresolved product gate
 
-The deployment/browser validation gate for the fixture-backed Tarsima Next.js surface is now **PASS**:
+The deployment/build gate for the fixture-backed Tarsima Next.js surface is **PASS**:
 
 1. local source state verified clean at the recorded preview source SHA;
 2. Vercel preview target verified;
 3. Vercel production build completed successfully;
 4. protected HTTP smoke returned the real application;
-5. desktop browser smoke passed visually in English and Arabic;
-6. prior responsive and physical-device visual evidence remains valid.
+5. desktop English/LTR visual smoke passed;
+6. Arabic translated rendering passed without visible breakage;
+7. prior responsive and physical-device visual evidence remains valid.
 
-PR #18 remains intentionally **Draft**. Passing this deployment gate does **not** make the fixture data judge-final and does not authorize live Qloo or LLM integration.
+Full Arabic RTL localization remains an **open presentation gate** because the screenshots do not yet prove RTL-native structural direction.
 
-The next unresolved product gate is the separately controlled transition from fixture-backed presentation evidence to grounded judge-final content/integration. That transition must preserve the frozen Qloo/deterministic/AI authority boundaries and requires explicit authorization before any new Qloo network call or holdout access.
+PR #18 remains intentionally **Draft**. Passing the deployment gate does **not** make the fixture data judge-final and does not authorize live Qloo or LLM integration.
+
+The next unresolved product gates are:
+
+- decide and validate the intended Arabic RTL structural behavior if Arabic is judge-facing;
+- separately control the transition from fixture-backed presentation evidence to grounded judge-final content/integration.
+
+Any such transition must preserve the frozen Qloo/deterministic/AI authority boundaries and requires explicit authorization before any new Qloo network call or holdout access.
 
 This checkpoint is intended to make future recovery deterministic even if chat history becomes unavailable or desynchronized across devices.
