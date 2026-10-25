@@ -6,10 +6,25 @@
     "node": ">=22.6.0"
   },
   "scripts": {
-    "typecheck": "npx --yes -p typescript@5.8.3 tsc -p tsconfig.json --noEmit",
-    "test": "node --experimental-strip-types --test tests/judge-experience/*.test.ts tests/frontend/*.test.ts",
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "node --experimental-strip-types --test tests/judge-experience/*.test.ts tests/frontend/frontend-consumption.test.ts && tsx --test tests/frontend/next-rendering.test.tsx",
     "fixture": "node --experimental-strip-types scripts/run-judge-fixture.ts",
     "frontend:payload": "node --experimental-strip-types scripts/run-judge-frontend-payload.ts",
     "frontend:dev": "node --experimental-strip-types scripts/serve-judge-frontend.ts"
+  },
+  "dependencies": {
+    "next": "16.4.3",
+    "react": "19.3.1",
+    "react-dom": "19.3.1"
+  },
+  "devDependencies": {
+    "@types/node": "26.6.5",
+    "@types/react": "19.3.0",
+    "@types/react-dom": "19.3.0",
+    "tsx": "4.23.15",
+    "typescript": "5.8.3"
   }
 }

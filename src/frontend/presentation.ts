@@ -58,7 +58,7 @@ const CATEGORY_LABELS: Readonly<Record<Category, string>> = {
 };
 
 const EVIDENCE_NOTE =
-  'Qloo surfaces the venue evidence. TastePassport reconciles it deterministically. AI only explains the selected places.';
+  'Qloo surfaces the venue evidence. Tarsima reconciles it deterministically. AI only explains the selected places.';
 
 function stateLabel(state: JudgeExperienceFrontendPayload['state']): string {
   if (state === 'READY') return '3 shared picks found';
