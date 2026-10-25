@@ -127,8 +127,8 @@ export function buildFrontendPayload(
     state: execution.state,
     state_label: stateLabel(execution.state),
     people: [
-      { side: 'A', label: 'Person A', profile_ref: request.person_a.profile_ref },
-      { side: 'B', label: 'Person B', profile_ref: request.person_b.profile_ref },
+      { side: 'A', label: 'You', profile_ref: request.person_a.profile_ref },
+      { side: 'B', label: 'Partner', profile_ref: request.person_b.profile_ref },
     ],
     summary:
       explanationIsSafe
