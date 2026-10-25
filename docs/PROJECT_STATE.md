@@ -4,9 +4,10 @@
 **Repository:** `omar-shaltut/TastePassport`  
 **Active implementation branch:** `feat/tarsima-nextjs-frontend-v1`  
 **Open PR:** #18 — `Implement TARSIMA Next.js Frontend V1`  
-**Recovered code baseline SHA before this checkpoint:** `a67911c6fcf72014599176e795cebe90eb0a9005`
+**Recovered code baseline SHA before this checkpoint:** `a67911c6fcf72014599176e795cebe90eb0a9005`  
+**Verified Vercel preview source SHA:** `f9bc4d7b61f46842c184ebfdc7863e00fe602310`
 
-This file records the project state reconstructed from GitHub, local PowerShell output, browser screenshots, and true-device screenshots after a ChatGPT conversation-sync loss. GitHub remains the source of truth for committed code. Screenshot-derived facts are explicitly labeled and are not treated as repository-verifiable implementation facts unless the code/CI also supports them.
+This file records the project state reconstructed from GitHub, local PowerShell output, browser screenshots, true-device screenshots, and the verified Vercel preview deployment after a ChatGPT conversation-sync loss. GitHub remains the source of truth for committed code. Screenshot-derived facts are explicitly labeled and are not treated as repository-verifiable implementation facts unless the code/CI also supports them.
 
 ## 1. Current implementation status
 
@@ -80,12 +81,19 @@ The following refinements are committed on the active branch:
 
 ## 5. CI checkpoint
 
-Exact recovered code baseline: `a67911c6fcf72014599176e795cebe90eb0a9005`.
+Recovered code baseline: `a67911c6fcf72014599176e795cebe90eb0a9005`.
 
 GitHub Actions on that exact SHA:
 
 - `Repository Validation` run `40234331898`: **SUCCESS**.
 - `Implementation Skeleton Validation` run `40234331917`: **SUCCESS**.
+
+Recovery documentation head before this Vercel checkpoint: `f9bc4d7b61f46842c184ebfdc7863e00fe602310`.
+
+GitHub Actions on that exact SHA:
+
+- `Repository Validation` run `40238508312`: **SUCCESS**.
+- `Implementation Skeleton Validation` run `40238508318`: **SUCCESS**.
 
 Earlier scaffold integrity validation on `5b1e423bad762be609d6148f333f82909250a796` also recorded:
 
@@ -97,13 +105,20 @@ Earlier scaffold integrity validation on `5b1e423bad762be609d6148f333f82909250a7
 - production `next build`: PASS.
 - raw evidence boundary: PASS.
 
-No new code changes should be treated as validated until CI is green on the new exact head.
+Any later code-bearing commit still requires its own validation. Documentation-only checkpoint commits do not change the runtime implementation, but their exact-head CI status should still be recorded before calling that head green.
 
 ## 6. Browser and mobile visual evidence
 
 ### Desktop
 
 The Next.js Tarsima surface was run locally at `http://localhost:3000` and visually reviewed during the recovered session. Desktop refinements listed above were implemented before the recovered baseline SHA.
+
+The verified Vercel preview was also visually reviewed in a desktop browser in both supported presentation directions:
+
+- English / LTR: **VISUAL PASS**.
+- Arabic / RTL: **VISUAL PASS**.
+
+User-provided screenshots show the same three-slot structure, trust strip, and collapsed trace in both language presentations without visible grid breakage, text clipping, or horizontal overflow. This is visual evidence only; it does not alter the recommendation contract or imply live venue data.
 
 ### Responsive DevTools
 
@@ -138,39 +153,94 @@ Judge-final content remains dependent on separately authorized, grounded integra
 
 ## 8. Vercel state
 
-Confirmed from user-provided Vercel screenshots:
+### Project setup
 
-- Vercel GitHub integration is connected to `omar-shaltut/TastePassport`.
-- A Vercel Hobby team named `Tarsima` exists/was selected.
-- The repository reached the Vercel `New Project` import screen.
-- Project name shown: `tastepassport`.
-- Root directory shown: `./`.
-- A Deploy action is available.
+Confirmed from CLI output and prior screenshots:
 
-**Important branch warning:** the recovered Vercel import screenshot shows GitHub branch `main`, while the validated Next.js Tarsima implementation currently lives on `feat/tarsima-nextjs-frontend-v1` / PR #18. Do **not** treat a deployment from `main` as a deployment of the recovered PR #18 implementation unless branch/source configuration is explicitly verified.
+- Vercel team: `tarsima`.
+- Vercel project: `tarsima/tarsima`.
+- Framework auto-detected as Next.js.
+- Git auto-deploy connection was deliberately **not** enabled during CLI setup.
+- The repository remains `omar-shaltut/TastePassport`; the Vercel project name does not rename the repository.
 
-Current deployment verdict:
+### First deployment
 
-- `VERCEL_GITHUB_CONNECTION = CONFIRMED`
-- `VERCEL_IMPORT_SCREEN_REACHED = CONFIRMED`
-- `VERCEL_PR18_SOURCE_BRANCH = NOT YET VERIFIED`
-- `VERCEL_DEPLOYMENT_SUCCESS = NOT YET PROVEN`
-- No production URL is recorded by this checkpoint.
+The first Vercel deployment was created while the local repository was still at:
 
-The user also reports connecting Vercel to ChatGPT; that is not repository-verifiable and is recorded here only as user-reported external setup.
+`a67911c6fcf72014599176e795cebe90eb0a9005`
 
-## 9. Local working-tree caution
+Because it was the project's first deployment, Vercel assigned it to production automatically. That first deployment is **not** the canonical PR #18 validation deployment and must not be described as deploying the later recovery-documentation head.
 
-During local `npm run dev`, Next.js reported automatically updating `tsconfig.json` to add `.next/dev/types/**/*.ts` to `include`.
+Production alias created by Vercel:
 
-The GitHub version at the recovered baseline contains `.next/types/**/*.ts` but not `.next/dev/types/**/*.ts`.
+- `https://tarsima.vercel.app`
 
-Therefore, before the next local commit:
+No subsequent `--prod` overwrite was performed during this checkpoint.
 
-1. inspect `git status`;
-2. inspect any `tsconfig.json` diff;
-3. decide explicitly whether the Next-generated change is required;
-4. do not commit it silently as an unrelated change.
+### Canonical PR #18 preview validation
+
+Before the canonical preview deployment, the local branch was fast-forwarded to:
+
+`f9bc4d7b61f46842c184ebfdc7863e00fe602310`
+
+The local working tree was then verified clean with `git status --short`.
+
+Vercel preview metadata:
+
+- Deployment ID: `dpl_7ksvWsDoSPLRYjQLK9HsQ8qif7he`
+- Target: `preview`
+- Status: **Ready**
+- URL: `https://tarsima-l25k7xnif-tarsima.vercel.app`
+- Created: 2026-10-26 01:22:44 GMT+0200
+- Build region: `iad1`
+- Build machine: 2 vCPU / 8192 MiB
+
+Build evidence:
+
+- Next.js `16.4.3` detected.
+- `next build` executed.
+- optimized production build compiled successfully.
+- TypeScript completed successfully.
+- static page generation completed `3/3`.
+- deployment completed.
+- final Vercel status: **Ready**.
+
+Protected preview smoke evidence:
+
+- Deployment Protection was enabled.
+- `vercel curl` generated a deployment-protection bypass token successfully.
+- the protected preview returned the real Tarsima HTML, including the TARSIMA page title, London fixture city, all three shared-pick cards, trust strip, and collapsed selection trace.
+
+Browser smoke evidence:
+
+- English / LTR preview: **PASS**.
+- Arabic / RTL preview: **PASS**.
+
+Current verdict:
+
+- `VERCEL_PROJECT_SETUP = CONFIRMED`
+- `VERCEL_PREVIEW_SOURCE_SHA = f9bc4d7b61f46842c184ebfdc7863e00fe602310`
+- `VERCEL_PREVIEW_TARGET = PREVIEW`
+- `VERCEL_BUILD_V1 = PASS`
+- `VERCEL_PREVIEW_STATUS = READY`
+- `VERCEL_PROTECTED_CURL_SMOKE = PASS`
+- `VERCEL_BROWSER_SMOKE_EN = VISUAL PASS`
+- `VERCEL_BROWSER_SMOKE_AR = VISUAL PASS`
+
+The user also reports connecting Vercel to ChatGPT; that remains user-reported external setup and is not repository-verifiable.
+
+## 9. Local working-tree state
+
+During local `npm run dev`, Next.js reported automatically updating `tsconfig.json` to add `.next/dev/types/**/*.ts` to `include`, and updated `next-env.d.ts`. Those generated local changes were deliberately restored from `HEAD` rather than committed as unrelated changes.
+
+Vercel CLI created a local `.vercel/` directory and added `.vercel` to `.gitignore`. The `.gitignore` edit was restored from `HEAD`; `.vercel/` was then excluded **locally only** through `.git/info/exclude` so the Vercel project link remains available without modifying the repository.
+
+Immediately before the canonical preview deployment:
+
+- `git rev-parse HEAD` = `f9bc4d7b61f46842c184ebfdc7863e00fe602310`
+- `git status --short` = empty
+
+Therefore the canonical preview deployment was launched from a clean local tree at the recorded source SHA.
 
 ## 10. Explicit non-goals / unauthorized actions
 
@@ -184,16 +254,22 @@ This checkpoint does **not** authorize:
 - algorithm/ranking/slot-contract changes;
 - repository rename;
 - automatic PR merge;
-- treating a Vercel deployment from the wrong branch as PR #18 validation.
+- production overwrite with `vercel --prod`;
+- enabling automatic Git-triggered Vercel deployment without a separate decision.
 
-## 11. Next validation gate
+## 11. Validation gate status and next unresolved product gate
 
-Before new product implementation:
+The deployment/browser validation gate for the fixture-backed Tarsima Next.js surface is now **PASS**:
 
-1. Verify the local working tree is clean or reconcile the Next-generated `tsconfig.json` change deliberately.
-2. Verify Vercel is configured to deploy the intended PR #18 branch/preview rather than assuming `main` contains the Next.js Tarsima implementation.
-3. Perform the Vercel deployment only after the source branch is correct.
-4. Record deployment URL, exact deployed commit SHA, build result, and browser smoke result.
-5. Keep PR #18 Draft until deployment/browser gates are explicitly reviewed.
+1. local source state verified clean at the recorded preview source SHA;
+2. Vercel preview target verified;
+3. Vercel production build completed successfully;
+4. protected HTTP smoke returned the real application;
+5. desktop browser smoke passed visually in English and Arabic;
+6. prior responsive and physical-device visual evidence remains valid.
+
+PR #18 remains intentionally **Draft**. Passing this deployment gate does **not** make the fixture data judge-final and does not authorize live Qloo or LLM integration.
+
+The next unresolved product gate is the separately controlled transition from fixture-backed presentation evidence to grounded judge-final content/integration. That transition must preserve the frozen Qloo/deterministic/AI authority boundaries and requires explicit authorization before any new Qloo network call or holdout access.
 
 This checkpoint is intended to make future recovery deterministic even if chat history becomes unavailable or desynchronized across devices.
