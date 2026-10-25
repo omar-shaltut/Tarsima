@@ -100,7 +100,6 @@ export function JudgeExperience({ payload }: { payload: JudgeExperienceFrontendP
 
         <section aria-labelledby="shared-picks-section">
           <div className="section-heading">
-            <p className="eyebrow">Culture · Outdoors · City Life</p>
             <h2 id="shared-picks-section">Shared picks across three parts of the city</h2>
           </div>
           <div className="pick-grid">
