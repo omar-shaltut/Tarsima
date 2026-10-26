@@ -65,6 +65,9 @@
       "ASSEMBLING_SLOTS": "Building Culture, Outdoor, and City Life picks",
       "EXPLAINING": "Explaining why the selected places work for both",
       "VALIDATING": "Verifying the final recommendations"
+    },
+    "language": {
+      "aria": "Language selector"
     }
   }
 }

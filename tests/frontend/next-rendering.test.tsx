@@ -82,7 +82,8 @@ test('Arabic presentation localizes fixed UI while preserving selected venue nam
   assert.match(html, /مطابقة مشتركة/);
   assert.match(html, /كيف تم اختيار هذه الأماكن/);
   assert.doesNotMatch(html, /Your Shared Picks/);
-  assert.match(html, /href="\/ar"/);
+  assert.match(html, /href="\/en"/);
+  assert.match(html, /href="\/ar" aria-current="page"/);
 
   for (const card of payload.cards) {
     if (card.name) assert.match(html, new RegExp(card.name));

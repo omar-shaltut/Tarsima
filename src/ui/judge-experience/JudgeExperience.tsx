@@ -137,7 +137,18 @@ export function JudgeExperience({
         <a className="brand-link" href={`/${locale}`} aria-label={t('homeAria')}>
           <span className="brand-wordmark">Tarsima</span>
         </a>
-        <span className="city-pill">{payload.destination_city}</span>
+        <div className="topbar-actions">
+          <span className="city-pill">{payload.destination_city}</span>
+          <nav className="language-switcher" aria-label={t('language.aria')}>
+            <a href="/en" aria-current={locale === 'en' ? 'page' : undefined}>
+              EN
+            </a>
+            <span aria-hidden="true">|</span>
+            <a href="/ar" aria-current={locale === 'ar' ? 'page' : undefined}>
+              AR
+            </a>
+          </nav>
+        </div>
       </header>
 
       <main className="page-shell">
