@@ -58,7 +58,7 @@ const CATEGORY_LABELS: Readonly<Record<Category, string>> = {
 };
 
 const EVIDENCE_NOTE =
-  'Qloo surfaces the venue evidence. TastePassport reconciles it deterministically. AI only explains the selected places.';
+  'Qloo surfaces the venue evidence. Tarsima reconciles it deterministically. AI only explains the selected places.';
 
 function stateLabel(state: JudgeExperienceFrontendPayload['state']): string {
   if (state === 'READY') return '3 shared picks found';
@@ -127,8 +127,8 @@ export function buildFrontendPayload(
     state: execution.state,
     state_label: stateLabel(execution.state),
     people: [
-      { side: 'A', label: 'Person A', profile_ref: request.person_a.profile_ref },
-      { side: 'B', label: 'Person B', profile_ref: request.person_b.profile_ref },
+      { side: 'A', label: 'You', profile_ref: request.person_a.profile_ref },
+      { side: 'B', label: 'Partner', profile_ref: request.person_b.profile_ref },
     ],
     summary:
       explanationIsSafe

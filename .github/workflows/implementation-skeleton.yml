@@ -21,7 +21,10 @@ jobs:
         with:
           node-version: '22.16.0'
 
-      - name: Typecheck strict TypeScript contracts
+      - name: Install pinned dependencies
+        run: npm install --no-audit --no-fund
+
+      - name: Typecheck strict TypeScript contracts and Next.js surface
         run: npm run typecheck
 
       - name: Run implementation and frontend tests
@@ -36,3 +39,6 @@ jobs:
         run: |
           npm run --silent frontend:payload > frontend-output.json
           node -e "const fs=require('fs'); const x=JSON.parse(fs.readFileSync('frontend-output.json','utf8')); if(x.schema_version!=='JUDGE_FRONTEND_V1'||x.state!=='READY') throw new Error('Frontend payload contract failed'); const ids=x.cards.map(c=>c.entity_id); if(ids.join('|')!=='shared-museum|shared-park|shared-mall') throw new Error('Frontend card payload changed'); const raw=JSON.stringify(x); for(const k of ['retrievals','qloo_seed_entity_ids','ordered_shared_candidates']) if(raw.includes(k)) throw new Error('Raw evidence leaked: '+k);"
+
+      - name: Build Next.js production application
+        run: npm run build

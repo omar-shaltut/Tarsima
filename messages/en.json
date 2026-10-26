@@ -1,0 +1,73 @@
+{
+  "app": {
+    "locale": "en"
+  },
+  "judge": {
+    "homeAria": "Tarsima home",
+    "hero": {
+      "eyebrow": "Your shared taste",
+      "title": "Your Shared Picks",
+      "lead": "Three ways to experience {city} together.",
+      "summaryFallback": "Qloo surfaced shared evidence across your two taste profiles.",
+      "peopleAria": "Taste profiles"
+    },
+    "state": {
+      "READY": "3 shared picks found",
+      "PARTIAL_READY": "Shared picks found with an honest shortfall",
+      "FAILED": "Run could not be safely presented"
+    },
+    "person": {
+      "A": "You",
+      "B": "Partner"
+    },
+    "section": {
+      "title": "Shared picks across three parts of the city"
+    },
+    "slot": {
+      "CULTURE": "Culture Pick",
+      "OUTDOORS": "Outdoor Pick",
+      "CITY_LIFE": "City Life Pick"
+    },
+    "category": {
+      "art_gallery": "Art Gallery",
+      "book_store": "Book Store",
+      "museum": "Museum",
+      "park": "Park",
+      "restaurant": "Restaurant",
+      "shopping_mall": "Shopping Mall"
+    },
+    "card": {
+      "noSharedMatch": "No shared match",
+      "noSharedQlooEvidence": "No shared Qloo evidence was found for the {slot} slot.",
+      "evidenceUnavailable": "Evidence was unavailable for the {slot} slot.",
+      "sharedPlace": "Shared place",
+      "sharedQlooVenue": "Shared Qloo venue",
+      "evidenceAria": "Qloo source evidence",
+      "sharedMatch": "Shared match",
+      "rank": "{person} · #{rank} in {category}",
+      "rankNoCategory": "{person} · #{rank}",
+      "whyBoth": "Why it works for both"
+    },
+    "failure": {
+      "eyebrow": "Unable to verify",
+      "title": "We could not safely present shared picks.",
+      "note": "No venue is substituted or invented when evidence or validation fails."
+    },
+    "trust": {
+      "aria": "How recommendation authority is separated",
+      "note": "Qloo surfaces the venue evidence. Tarsima reconciles it deterministically. AI only explains the selected places."
+    },
+    "trace": {
+      "summary": "How these picks were chosen",
+      "RESOLVING_PROFILES": "Understanding both taste profiles",
+      "RETRIEVING_QLOO": "Searching the city through Qloo",
+      "RECONCILING": "Finding shared Qloo matches",
+      "ASSEMBLING_SLOTS": "Building Culture, Outdoor, and City Life picks",
+      "EXPLAINING": "Explaining why the selected places work for both",
+      "VALIDATING": "Verifying the final recommendations"
+    },
+    "language": {
+      "aria": "Language selector"
+    }
+  }
+}
