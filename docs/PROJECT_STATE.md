@@ -323,3 +323,71 @@ Frontend V1 implementation, localization, build, and current-head preview presen
 Any such transition must preserve the frozen Qloo/deterministic/AI authority boundaries and requires explicit authorization before any new Qloo network call or holdout access.
 
 This checkpoint is intended to make future recovery deterministic even if chat history becomes unavailable or desynchronized across devices.
+
+---
+
+## Post-merge repository checkpoint — 2026-10-27
+
+This section supersedes earlier repository-status statements in this document where they describe PR #18 as Draft or repository/stack closure as pending. Those statements remain preserved above as historical evidence.
+
+### Repository closure
+
+The full stacked PR chain has now been merged bottom-up using merge commits:
+
+`#1 -> #3 -> #5 -> #7 -> #9 -> #11 -> #13 -> #14 -> #15 -> #16 -> #17 -> #18`
+
+Final Frontend V1 merge:
+
+- PR: `#18`
+- merge commit: `1b0df2e41ae0966e614e07d59542feac3e843594`
+- target branch: `main`
+- local `main` verified synchronized with `origin/main`
+- local working tree verified clean after synchronization
+
+No squash or rebase was used during stack closure.
+
+### Frontend V1 status
+
+`TARSIMA_NEXTJS_FRONTEND_V1 = COMPLETE`
+
+Confirmed:
+
+- Next.js Frontend V1 merged to `main`;
+- English `/en` LTR route implemented;
+- Arabic `/ar` native RTL route implemented;
+- EN/AR language selector implemented;
+- responsive and physical-device visual review passed;
+- current-head preview validation passed;
+- exact-head CI passed before merge.
+
+### Authority boundaries remain frozen
+
+Repository closure did not authorize or introduce:
+
+- live Qloo provider execution;
+- holdout access;
+- LLM provider wiring;
+- recommendation ranking changes;
+- schema changes;
+- venue image-provider integration;
+- production deployment overwrite.
+
+The current judge-facing implementation remains fixture-backed.
+
+### Next product phase
+
+The project has moved from Frontend V1 implementation into submission completion.
+
+Canonical planning checkpoint:
+
+`docs/TARSIMA_SUBMISSION_READINESS_V1.md`
+
+The next runtime slice is:
+
+`LIVE_QLOO_ADAPTER_V1`
+
+Before implementation, its request/response mapping must be frozen against the existing adapter contract and current Qloo API documentation.
+
+The guiding priority for the remaining submission work is:
+
+**completion > expansion**
