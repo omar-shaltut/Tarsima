@@ -70,3 +70,23 @@ test('Next presentation source contains no forbidden recommendation claims', () 
   assert.doesNotMatch(source, /unique(?:ly)? matched/i);
   assert.doesNotMatch(source, /#1 overall/i);
 });
+
+test('Arabic presentation localizes fixed UI while preserving selected venue names', async () => {
+  const payload = await readyPayload();
+  const html = renderToStaticMarkup(
+    createElement(JudgeExperience, {payload, locale: 'ar'}),
+  );
+
+  assert.match(html, /اختياراتكما المشتركة/);
+  assert.match(html, /ذوقكما المشترك/);
+  assert.match(html, /مطابقة مشتركة/);
+  assert.match(html, /كيف تم اختيار هذه الأماكن/);
+  assert.doesNotMatch(html, /Your Shared Picks/);
+  assert.match(html, /href="\/ar"/);
+
+  for (const card of payload.cards) {
+    if (card.name) assert.match(html, new RegExp(card.name));
+  }
+
+  if (payload.summary) assert.match(html, new RegExp(payload.summary.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
+});
