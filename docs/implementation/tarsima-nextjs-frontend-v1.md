@@ -16,7 +16,7 @@ Implementation slice 1 migrates the validated `JUDGE_FRONTEND_V1` presentation s
 - AI explanation copy is rendered only after the existing deterministic validator passes.
 - No live Qloo call, holdout access, image provider, or LLM provider is added.
 
-## Slice 1 gate
+## Frontend V1 gate
 
 - Next app bootstraps.
 - Existing tests remain green.
@@ -25,4 +25,4 @@ Implementation slice 1 migrates the validated `JUDGE_FRONTEND_V1` presentation s
 - Fixture READY render preserves Culture → Outdoor → City Life order.
 - Raw evidence remains excluded from presentation payloads.
 
-Mobile visual review and deployment remain later gates.
+Mobile and true-device visual review have passed. A Vercel preview was validated on an earlier PR #18 checkpoint. Native `en` / `ar` localization, RTL rendering, and a simple language selector are now implemented on the current branch. The remaining Frontend V1 deployment-facing gate is a preview smoke from the current head.

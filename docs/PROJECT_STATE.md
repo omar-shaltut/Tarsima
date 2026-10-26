@@ -117,15 +117,24 @@ The verified Vercel preview was visually reviewed in its **original English prod
 
 - English / LTR product UI: **VISUAL PASS**.
 
-Additional screenshots were captured after the browser automatically translated the English page into Arabic. Those screenshots are useful only as evidence that browser translation did not visibly destroy the page layout. They are **not** evidence that Tarsima implements Arabic localization, Arabic copy, `dir="rtl"`, RTL CSS behavior, or any product-level Arabic support.
+The earlier browser-translated Arabic screenshots remain **INFORMATIONAL ONLY** and are not treated as native product-localization evidence.
 
-Therefore:
+Native Arabic support was subsequently implemented on the active branch:
 
-- browser-translated Arabic observation: **INFORMATIONAL ONLY**;
-- native Arabic localization: **NOT IMPLEMENTED / NOT CLAIMED**;
-- native RTL product layout: **NOT IMPLEMENTED / NOT CLAIMED**.
+- `next-intl` routing supports `en` and `ar`;
+- `/en` renders LTR and `/ar` renders RTL;
+- fixed Judge Experience presentation copy is localized in Arabic;
+- dynamic evidence-backed venue names, summary, and validated explanation text remain unchanged rather than being machine-translated;
+- mixed-direction dynamic text is isolated with `bdi dir="auto"` where required;
+- a simple `EN / AR` language selector preserves explicit locale navigation;
+- local Arabic/RTL browser review passed without visible clipping, overlap, or structural breakage.
 
-Arabic/RTL is not a validation gate for the current English product unless a separate product requirement explicitly adds Arabic localization later.
+Current product-localization verdict:
+
+- native Arabic localization: **IMPLEMENTED**;
+- native RTL product layout: **VISUAL PASS locally**;
+- English / Arabic selector: **IMPLEMENTED**;
+- additional locales beyond `en` / `ar`: **DEFERRED**.
 
 ### Responsive DevTools
 
@@ -233,8 +242,8 @@ Current verdict:
 - `VERCEL_PROTECTED_CURL_SMOKE = PASS`
 - `VERCEL_BROWSER_SMOKE_EN = VISUAL PASS`
 - `ARABIC_BROWSER_TRANSLATION_SCREENSHOTS = INFORMATIONAL_ONLY`
-- `NATIVE_ARABIC_LOCALIZATION = NOT_IMPLEMENTED_NOT_CLAIMED`
-- `NATIVE_RTL_PRODUCT_LAYOUT = NOT_IMPLEMENTED_NOT_CLAIMED`
+- `NATIVE_ARABIC_LOCALIZATION_AT_THIS_PREVIEW_SHA = NOT_IMPLEMENTED`
+- `NATIVE_RTL_PRODUCT_LAYOUT_AT_THIS_PREVIEW_SHA = NOT_IMPLEMENTED`
 
 The user also reports connecting Vercel to ChatGPT; that remains user-reported external setup and is not repository-verifiable.
 
@@ -265,7 +274,7 @@ This checkpoint does **not** authorize:
 - automatic PR merge;
 - production overwrite with `vercel --prod`;
 - enabling automatic Git-triggered Vercel deployment without a separate decision;
-- adding Arabic localization or RTL behavior without a separate product requirement.
+- adding additional locales beyond `en` / `ar` without a separate product requirement.
 
 ## 11. Validation gate status and next unresolved product gate
 
@@ -278,11 +287,11 @@ The deployment/build gate for the fixture-backed Tarsima Next.js surface is **PA
 5. desktop English/LTR visual smoke passed;
 6. prior responsive and physical-device visual evidence remains valid.
 
-The Arabic screenshots came from browser translation and therefore create **no Arabic/RTL product gate** for the current English implementation.
+Native Arabic/RTL has since been implemented and locally validated on the current branch. The recorded Vercel preview above predates that implementation, so a current-head preview smoke remains the final deployment-facing presentation check for Frontend V1.
 
 PR #18 remains intentionally **Draft**. Passing the deployment gate does **not** make the fixture data judge-final and does not authorize live Qloo or LLM integration.
 
-The next unresolved product gate is the separately controlled transition from fixture-backed presentation evidence to grounded judge-final content/integration.
+For Frontend V1, the remaining gate is a preview smoke from the current head after the Arabic/RTL and language-selector commits. The separately controlled transition from fixture-backed presentation evidence to grounded judge-final content/integration remains a later product gate.
 
 Any such transition must preserve the frozen Qloo/deterministic/AI authority boundaries and requires explicit authorization before any new Qloo network call or holdout access.
 
