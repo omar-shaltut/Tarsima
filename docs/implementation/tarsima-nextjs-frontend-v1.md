@@ -25,4 +25,4 @@ Implementation slice 1 migrates the validated `JUDGE_FRONTEND_V1` presentation s
 - Fixture READY render preserves Culture → Outdoor → City Life order.
 - Raw evidence remains excluded from presentation payloads.
 
-Mobile and true-device visual review have passed. A Vercel preview was validated on an earlier PR #18 checkpoint. Native `en` / `ar` localization, RTL rendering, and a simple language selector are now implemented on the current branch. The remaining Frontend V1 deployment-facing gate is a preview smoke from the current head.
+Mobile and true-device visual review have passed. A Vercel preview was validated on an earlier PR #18 checkpoint. Native `en` / `ar` localization, RTL rendering, and a simple language selector are now implemented on the current branch. The current-head Vercel preview has now passed English/LTR and native Arabic/RTL smoke validation. Frontend V1 implementation and deployment-facing presentation gates are complete; remaining work is PR/stack closure rather than additional Frontend V1 feature work.

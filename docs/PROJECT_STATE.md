@@ -246,6 +246,33 @@ Current verdict:
 - `NATIVE_RTL_PRODUCT_LAYOUT_AT_THIS_PREVIEW_SHA = NOT_IMPLEMENTED`
 
 The user also reports connecting Vercel to ChatGPT; that remains user-reported external setup and is not repository-verifiable.
+### Current-head Frontend V1 preview validation
+
+A new Vercel preview was deployed from the clean current branch head:
+
+- source SHA: `5fe152310f7088348ae69f464c8ba2f6628bd2de`
+- target: `preview`
+- status: **Ready**
+- preview URL: `https://tarsima-gu9bxct7b-tarsima.vercel.app`
+- no `--prod` deployment was performed
+
+Current-head smoke evidence:
+
+- `/en` returned native Tarsima HTML with `<html lang="en" dir="ltr">`;
+- `/ar` returned native Tarsima HTML with `<html lang="ar" dir="rtl">`;
+- the `EN / AR` selector marked the active locale correctly on both routes;
+- English desktop browser smoke: **VISUAL PASS**;
+- Arabic native RTL desktop browser smoke: **VISUAL PASS**;
+- recommendation cards, trust strip, and collapsed trace rendered without visible clipping, overlap, or horizontal overflow;
+- fixture-backed venue names and validated dynamic explanation copy remained unchanged across locales.
+
+Current-head verdict:
+
+- `FRONTEND_V1_CURRENT_HEAD_PREVIEW = PASS`
+- `VERCEL_CURRENT_HEAD_PREVIEW_STATUS = READY`
+- `VERCEL_CURRENT_HEAD_EN_SMOKE = PASS`
+- `VERCEL_CURRENT_HEAD_AR_RTL_SMOKE = PASS`
+- `FRONTEND_V1_DEPLOYMENT_FACING_GATE = PASS`
 
 ## 9. Local working-tree state
 
@@ -287,11 +314,11 @@ The deployment/build gate for the fixture-backed Tarsima Next.js surface is **PA
 5. desktop English/LTR visual smoke passed;
 6. prior responsive and physical-device visual evidence remains valid.
 
-Native Arabic/RTL has since been implemented and locally validated on the current branch. The recorded Vercel preview above predates that implementation, so a current-head preview smoke remains the final deployment-facing presentation check for Frontend V1.
+Native Arabic/RTL is implemented and has now passed both server-render and desktop visual smoke on the current-head Vercel preview. The Frontend V1 deployment-facing presentation gate is **PASS**.
 
 PR #18 remains intentionally **Draft**. Passing the deployment gate does **not** make the fixture data judge-final and does not authorize live Qloo or LLM integration.
 
-For Frontend V1, the remaining gate is a preview smoke from the current head after the Arabic/RTL and language-selector commits. The separately controlled transition from fixture-backed presentation evidence to grounded judge-final content/integration remains a later product gate.
+Frontend V1 implementation, localization, build, and current-head preview presentation gates are complete. The remaining action for PR #18 is repository/stack closure, not additional Frontend V1 feature work. The separately controlled transition from fixture-backed presentation evidence to grounded judge-final content/integration remains a later product gate.
 
 Any such transition must preserve the frozen Qloo/deterministic/AI authority boundaries and requires explicit authorization before any new Qloo network call or holdout access.
 
