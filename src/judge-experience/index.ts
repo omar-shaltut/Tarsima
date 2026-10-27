@@ -6,3 +6,4 @@ export * from './state-machine.ts';
 export * from './adapters.ts';
 export * from './fixture-adapter.ts';
 export * from './adapter-runner.ts';
+export * from './qloo-retrieval-adapter.ts';
