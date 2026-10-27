@@ -7,3 +7,4 @@ export * from './adapters.ts';
 export * from './fixture-adapter.ts';
 export * from './adapter-runner.ts';
 export * from './qloo-retrieval-adapter.ts';
+export * from './profile-resolution.ts';
