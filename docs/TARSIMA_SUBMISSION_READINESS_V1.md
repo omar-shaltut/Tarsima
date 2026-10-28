@@ -8,17 +8,18 @@ It is a planning and validation checkpoint only. It does not authorize runtime, 
 
 ## Confirmed repository state
 
-- Frontend V1 stack PRs `#1 -> #3 -> #5 -> #7 -> #9 -> #11 -> #13 -> #14 -> #15 -> #16 -> #17 -> #18` are merged.
+- Frontend V1 and submission-foundation PRs through `#21` are merged.
 - `main` is synchronized at merge commit:
-  `1b0df2e41ae0966e614e07d59542feac3e843594`.
+  `830605cf6114623aef6f60d9b3bca48bc621c6d6`.
 - English and Arabic presentation paths are implemented.
 - `/en` uses LTR presentation.
 - `/ar` uses native RTL presentation.
 - Responsive and physical-device visual review has passed for the current Frontend V1 surface.
 - Existing recommendation selection remains deterministic.
-- Existing live user-facing surface remains fixture-backed.
+- Fixture mode remains available for deterministic tests.
+- Live Qloo retrieval and profile-resolution foundations are implemented behind server-side adapter boundaries.
+- Judge-facing real-input flow is implemented in `feat/judge-input-flow-v1` and validated locally against live Qloo.
 - No production overwrite has been authorized.
-- No live Qloo adapter has been authorized yet.
 - No LLM provider wiring has been authorized yet.
 
 ## Frozen authority boundaries
@@ -50,7 +51,7 @@ Target flow:
 → `validated explanation`
 → `Tarsima presentation`
 
-Status: PENDING
+Status: COMPLETE
 
 ### Gate 2 — Live Qloo adapter
 
@@ -65,7 +66,7 @@ Requirements:
 - Fixture mode remains available for deterministic tests.
 - Live-provider tests must not expose secrets.
 
-Status: PENDING
+Status: COMPLETE
 
 ### Gate 3 — Judge-facing input flow
 
@@ -73,7 +74,21 @@ Replace the fixed judge demonstration inputs with the minimum real input surface
 
 The UI must not acquire recommendation authority.
 
-Status: PENDING
+Validated in Gate 3:
+
+- real destination + 3–5 taste seeds per person;
+- explicit Qloo candidate selection;
+- server-side re-verification of selected entity IDs;
+- request-local profile resolution;
+- live Qloo retrieval;
+- unchanged deterministic reconciliation/ranking;
+- deterministic grounded explanation bridge pending Gate 4 provider wiring;
+- English and Arabic/RTL desktop rendering;
+- mobile responsive rendering;
+- HTTP `/api/judge/search` and `/api/judge/run` live smoke;
+- no production deployment.
+
+Status: COMPLETE
 
 ### Gate 4 — Agentic orchestration
 
@@ -193,17 +208,17 @@ Deferred unless proven necessary:
 - production infrastructure refactors;
 - judge-only visual effects.
 
-## First technical task after this documentation slice
+## Next technical task after Gate 3
 
-The next runtime task is not a UI redesign.
+The next runtime task is not additional UI expansion.
 
 It is:
 
-`LIVE_QLOO_ADAPTER_V1`
+`AGENTIC_ORCHESTRATION_V1`
 
-Before implementation, freeze its request/response mapping against the existing adapter contract and current Qloo API documentation.
+Before implementation, freeze the minimum agent behavior and provider/framework choice against the existing deterministic authority boundary.
 
-No live provider call should be added before that mapping is reviewed.
+The agent must not select, substitute, reorder, or invent final venues.
 
 ## Completion principle
 

@@ -10,7 +10,7 @@
     "build": "next build",
     "start": "next start",
     "typecheck": "tsc -p tsconfig.json --noEmit",
-    "test": "node --experimental-strip-types --test tests/judge-experience/*.test.ts tests/frontend/frontend-consumption.test.ts && tsx --test tests/frontend/next-rendering.test.tsx",
+    "test": "node --experimental-strip-types --test tests/judge-experience/*.test.ts tests/frontend/*.test.ts && tsx --test tests/frontend/next-rendering.test.tsx",
     "fixture": "node --experimental-strip-types scripts/run-judge-fixture.ts",
     "frontend:payload": "node --experimental-strip-types scripts/run-judge-frontend-payload.ts",
     "frontend:dev": "node --experimental-strip-types scripts/serve-judge-frontend.ts"

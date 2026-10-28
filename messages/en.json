@@ -68,6 +68,31 @@
     },
     "language": {
       "aria": "Language selector"
+    },
+    "input": {
+      "eyebrow": "Build your shared taste map",
+      "title": "What do you both love?",
+      "lead": "Choose 3–5 things each. Tarsima resolves every taste to Qloo evidence before finding shared places.",
+      "destinationLabel": "Destination city",
+      "destinationPlaceholder": "e.g. Paris",
+      "personA": "Your tastes",
+      "personB": "Partner's tastes",
+      "seedLabel": "Taste {number}",
+      "seedPlaceholder": "Movie, artist, book, brand, place...",
+      "search": "Find on Qloo",
+      "searching": "Searching...",
+      "selectPrompt": "Choose the Qloo match you mean",
+      "noCandidates": "No Qloo matches found. Try a more specific taste.",
+      "searchFailed": "Could not search Qloo safely. Try again.",
+      "addSeed": "Add another taste",
+      "removeSeed": "Remove",
+      "run": "Find our shared picks",
+      "running": "Finding shared picks...",
+      "incomplete": "Resolve and select one Qloo match for every taste first.",
+      "runFailed": "The live run could not be completed safely. Please try again.",
+      "restart": "Try different tastes",
+      "candidateType": "Qloo type",
+      "candidateDetail": "Details"
     }
   }
 }

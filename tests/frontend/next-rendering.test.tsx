@@ -6,6 +6,7 @@ import { renderToStaticMarkup } from 'react-dom/server';
 import { executeFixtureForFrontend } from '../../src/frontend/demo.ts';
 import type { JudgeExperienceFrontendPayload } from '../../src/frontend/presentation.ts';
 import { JudgeExperience } from '../../src/ui/judge-experience/JudgeExperience.tsx';
+import { JudgeInputExperience } from '../../src/ui/judge-experience/JudgeInputExperience.tsx';
 import type { FixtureRun } from '../../src/judge-experience/types.ts';
 
 const fixtureUrl = new URL('../fixtures/judge-experience/ready.json', import.meta.url);
@@ -90,4 +91,30 @@ test('Arabic presentation localizes fixed UI while preserving selected venue nam
   }
 
   if (payload.summary) assert.match(html, new RegExp(payload.summary.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
+});
+
+
+test('judge input renders three unresolved tastes per person before any recommendation exists', () => {
+  const html = renderToStaticMarkup(
+    createElement(JudgeInputExperience, {locale: 'en'}),
+  );
+
+  assert.match(html, /What do you both love\?/);
+  assert.match(html, /Your tastes/);
+  assert.match(html, /Find our shared picks/);
+  assert.equal((html.match(/<input/g) ?? []).length, 7);
+  assert.doesNotMatch(html, /Shared picks across three parts of the city/);
+});
+
+test('judge input renders localized Arabic controls before any recommendation exists', () => {
+  const html = renderToStaticMarkup(
+    createElement(JudgeInputExperience, {locale: 'ar'}),
+  );
+
+  assert.match(html, /ما الأشياء التي يحبها كل منكما؟/);
+  assert.match(html, /ذوقك/);
+  assert.match(html, /اعثر على اختياراتنا المشتركة/);
+  assert.equal((html.match(/<input/g) ?? []).length, 7);
+  assert.match(html, /href="\/ar" aria-current="page"/);
+  assert.doesNotMatch(html, /Shared picks across three parts of the city/);
 });
