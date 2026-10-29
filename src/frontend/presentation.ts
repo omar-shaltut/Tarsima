@@ -58,7 +58,7 @@ const CATEGORY_LABELS: Readonly<Record<Category, string>> = {
 };
 
 const EVIDENCE_NOTE =
-  'Qloo surfaces the venue evidence. Tarsima reconciles it deterministically. AI only explains the selected places.';
+  'Qloo surfaces the venue evidence. Tarsima reconciles it deterministically. AI explains selected places when available; verified deterministic explanations are used if the AI service is unavailable.';
 
 function stateLabel(state: JudgeExperienceFrontendPayload['state']): string {
   if (state === 'READY') return '3 shared picks found';

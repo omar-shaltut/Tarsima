@@ -55,7 +55,7 @@
     },
     "trust": {
       "aria": "How recommendation authority is separated",
-      "note": "Qloo surfaces the venue evidence. Tarsima reconciles it deterministically. AI only explains the selected places."
+      "note": "Qloo surfaces the venue evidence. Tarsima reconciles it deterministically. AI explains selected places when available; verified deterministic explanations are used if the AI service is unavailable."
     },
     "trace": {
       "summary": "How these picks were chosen",
