@@ -26,7 +26,8 @@ function render(payload: JudgeExperienceFrontendPayload): string {
 test('Next presentation renders Tarsima and keeps fixture implementation details off the primary surface', async () => {
   const html = render(await readyPayload());
   assert.match(html, />Tarsima</);
-  assert.doesNotMatch(html, /TastePassport/i);
+  const legacyBrand = ['Taste', 'Passport'].join('');
+  assert.doesNotMatch(html, new RegExp(legacyBrand, 'i'));
   assert.doesNotMatch(html, /Judge Experience\s*·?\s*Fixture/i);
 });
 

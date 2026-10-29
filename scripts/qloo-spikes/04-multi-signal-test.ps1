@@ -1,4 +1,4 @@
-# TastePassport - Multi-Signal Personalization Spike
+# Tarsima - Multi-Signal Personalization Spike
 # Verified experiment structure:
 # Profile A: Interstellar + MUJI + The Martian
 # Profile B: Ratatouille + IKEA + The Little Prince

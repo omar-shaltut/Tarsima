@@ -1,4 +1,4 @@
-# TastePassport — Compliance Policy
+# Tarsima — Compliance Policy
 
 This file defines product-level guardrails for the project owner. It is not a religious fatwa and does not claim to resolve disputed religious questions. Where a ruling is unclear, the project uses **REVIEW** and excludes the item from the user-facing MVP until the owner obtains a reliable ruling.
 

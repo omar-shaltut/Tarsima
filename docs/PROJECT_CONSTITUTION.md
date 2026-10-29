@@ -1,4 +1,4 @@
-# TastePassport — Project Constitution v1.1
+# Tarsima — Project Constitution v1.1
 
 ## 0. Compliance gate
 
@@ -17,7 +17,7 @@ Decision order:
 
 People relocating to a new city do not merely lack information; they lack a culturally familiar starting point. Generic travel tools optimize for popularity, not personal fit.
 
-TastePassport asks a different question:
+Tarsima asks a different question:
 
 > What are the local equivalents of the things I already love?
 
@@ -27,7 +27,7 @@ International students, expats, relocated workers, and people moving permanently
 
 ## 3. Product promise
 
-The user provides 3–5 taste seeds from different domains and a destination city. TastePassport converts those signals into a Qloo-grounded taste profile and returns local matches that feel like a cultural translation of the user's existing preferences.
+The user provides 3–5 taste seeds from different domains and a destination city. Tarsima converts those signals into a Qloo-grounded taste profile and returns local matches that feel like a cultural translation of the user's existing preferences.
 
 ## 4. Non-negotiable Qloo principle
 

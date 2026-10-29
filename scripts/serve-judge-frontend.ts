@@ -49,5 +49,5 @@ const server = createServer(async (request, response) => {
 });
 
 server.listen(port, host, () => {
-  process.stdout.write(`TastePassport Judge Frontend: http://${host}:${port}\n`);
+  process.stdout.write(`Tarsima Judge Frontend: http://${host}:${port}\n`);
 });

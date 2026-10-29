@@ -1,4 +1,4 @@
-# TastePassport - Quality + Compliance Gate v2
+# Tarsima - Quality + Compliance Gate v2
 # Conservative MVP policy.
 # REVIEW is a product/compliance state, not a religious ruling.
 # This version fixes Gate v1 issues by:

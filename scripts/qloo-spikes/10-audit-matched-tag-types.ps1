@@ -1,4 +1,4 @@
-# TastePassport - Matched Tag Type Audit
+# Tarsima - Matched Tag Type Audit
 # Diagnostic only. Does not change policy or statuses.
 # For every v2.1 candidate, prints the exact Qloo tag(s) whose NAME matched
 # the regex evidence, including tag id/type. This avoids Unicode hardcoding.

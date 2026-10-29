@@ -1,4 +1,4 @@
-﻿# Qloo Fixed-Pool API Semantics Diagnostic
+# Qloo Fixed-Pool API Semantics Diagnostic
 
 Status: PRE-REGISTERED DIAGNOSTIC — NOT CONFIRMATORY EVIDENCE
 
@@ -10,7 +10,7 @@ QMBT-1 run `20261020T224345Z` stopped as:
 
 because a personalized request using `filter.results.entities` did not return the exact frozen entity set supplied by the harness.
 
-This diagnostic does not test the TastePassport product hypothesis and must not be counted as QMBT evidence.
+This diagnostic does not test the Tarsima product hypothesis and must not be counted as QMBT evidence.
 
 ## Question
 

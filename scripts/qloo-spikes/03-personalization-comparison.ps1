@@ -1,4 +1,4 @@
-﻿# TastePassport - Personalization Comparison Spike
+# Tarsima - Personalization Comparison Spike
 # Verified test:
 # Same city (Istanbul), two different taste signals
 # Interstellar vs Ratatouille

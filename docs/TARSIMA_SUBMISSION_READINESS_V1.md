@@ -199,7 +199,7 @@ Do not add work merely for polish if it threatens completion.
 Deferred unless proven necessary:
 
 - additional locales beyond `en` and `ar`;
-- repository-wide TastePassport-to-Tarsima rename;
+- Git history rewrite for legacy branding;
 - recommendation-algorithm redesign;
 - schema redesign;
 - venue image provider;

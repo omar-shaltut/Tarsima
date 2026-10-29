@@ -1,4 +1,4 @@
-﻿# Qloo Fixed-Pool Diagnostic Result — 2026-10-20
+# Qloo Fixed-Pool Diagnostic Result — 2026-10-20
 
 Status: FAIL_CURRENT_FIXED_POOL_STRATEGY_NOT_VALIDATED
 
@@ -70,7 +70,7 @@ rank.
 Therefore:
 
 1. Do not rerun QMBT using the current fixed-pool strategy.
-2. Do not count this diagnostic as evidence for or against the TastePassport
+2. Do not count this diagnostic as evidence for or against the Tarsima
    product hypothesis.
 3. Reconsider the retrieval/scoring comparison strategy before any further
    confirmatory testing.

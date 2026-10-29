@@ -284,6 +284,6 @@ Stop and do not interpret downstream results if:
 
 Architecture remains frozen during QMBT-1.
 
-If QMBT-1 succeeds under the aggregate rule, TastePassport may proceed to narrowly scoped MVP validation.
+If QMBT-1 succeeds under the aggregate rule, Tarsima may proceed to narrowly scoped MVP validation.
 
 If a valid QMBT-1 run fails the aggregate rule, no third post-hoc Qloo retrieval/scoring formulation cycle will be started on these same confirmatory cases. The broad taste-translation thesis should then be treated as strongly unsupported and reconsidered before further product investment.

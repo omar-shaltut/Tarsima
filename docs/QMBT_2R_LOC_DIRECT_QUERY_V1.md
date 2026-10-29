@@ -18,7 +18,7 @@ The prior locality-ID strategy remains preserved as audit history:
 
 - V1 reached Qloo Search and stopped on New York City with `LOCALITY_AMBIGUOUS`.
 - V2 resolved New York City and then stopped on Tokyo with `LOCALITY_UNRESOLVED` on a completed HTTP 200 Search response.
-- Neither result is evidence for or against the TastePassport product hypothesis.
+- Neither result is evidence for or against the Tarsima product hypothesis.
 - Neither result may be used to tune and rerun the same preregistered locality-ID test.
 
 The architectural bottleneck is therefore the QMBT-2R requirement that each city resolve to a unique Qloo `urn:entity:locality` ID before the Seed Commit, not a transport failure in the V2 harness.

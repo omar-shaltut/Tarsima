@@ -1,4 +1,4 @@
-﻿# TastePassport - Qloo Place Insights Spike
+# Tarsima - Qloo Place Insights Spike
 # Verified flow: Interstellar -> Istanbul places
 
 if (-not $headers -or -not $headers["X-Api-Key"]) {

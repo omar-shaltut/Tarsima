@@ -1,4 +1,4 @@
-# TastePassport - Gate v2.1 Evidence Audit
+# Tarsima - Gate v2.1 Evidence Audit
 # Read-only diagnostic helper for the same 50 candidates used in the v2.1 spike.
 # It does not change gate policy or candidate status.
 # It identifies which source field (Name / Tags / Categories) actually matched

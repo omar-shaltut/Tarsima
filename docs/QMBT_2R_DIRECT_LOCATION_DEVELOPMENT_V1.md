@@ -14,7 +14,7 @@ Evidence class: `DEVELOPMENT_DIAGNOSTIC_ONLY`
 
 Validate whether the frozen QMBT-2R retrieval design can structurally fill its six category quotas when city geography is supplied through Qloo `filter.location.query` with `filter.location.radius=0`.
 
-This is a mechanism/feasibility check only. It does not test the TastePassport product hypothesis, semantic taste fit, baseline advantage, evaluator agreement, UI quality, compliance logic, or confirmatory holdouts.
+This is a mechanism/feasibility check only. It does not test the Tarsima product hypothesis, semantic taste fit, baseline advantage, evaluator agreement, UI quality, compliance logic, or confirmatory holdouts.
 
 ## Development material
 

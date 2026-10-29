@@ -1,7 +1,7 @@
-# TastePassport Agent Instructions
+# Tarsima Agent Instructions
 
 ## Project scope
-TastePassport is an AI-assisted cultural taste translation product. Treat this repository as its own subproject with its own architecture, experiments, protocols, and decisions.
+Tarsima is an AI-assisted cultural taste translation product. Treat this repository as its own subproject with its own architecture, experiments, protocols, and decisions.
 
 ## Source of truth
 - GitHub committed code and committed protocol documents are the source of truth.

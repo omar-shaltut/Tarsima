@@ -17,7 +17,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout TastePassport
+      - name: Checkout Tarsima
         uses: actions/checkout@v4
 
       - name: Clone public Qloo documentation
@@ -35,7 +35,7 @@ jobs:
           set -euo pipefail
 
           {
-            echo "TastePassport commit: ${GITHUB_SHA}"
+            echo "Tarsima commit: ${GITHUB_SHA}"
             echo "Qloo docs commit: $(cat audit/qloo-docs-commit.txt)"
             echo "Qloo docs latest commit: $(cat audit/qloo-docs-latest-commit.txt)"
             echo
@@ -136,9 +136,9 @@ jobs:
           set -euo pipefail
 
           {
-            echo "# TastePassport Qloo Evidence Audit"
+            echo "# Tarsima Qloo Evidence Audit"
             echo
-            echo "TastePassport commit: \`${GITHUB_SHA}\`"
+            echo "Tarsima commit: \`${GITHUB_SHA}\`"
             echo
             echo "Qloo docs commit: \`$(cat audit/qloo-docs-commit.txt)\`"
             echo

@@ -1,4 +1,4 @@
-# TastePassport - Tag Provenance Audit
+# Tarsima - Tag Provenance Audit
 # Diagnostic only. Does not change policy or statuses.
 # Prints raw Qloo tag objects (name/id/type) for the candidates that remain
 # unresolved after the v2.1 evidence audit, plus known false-positive controls.

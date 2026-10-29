@@ -1,4 +1,4 @@
-﻿# QMBT-2R Pre-Seed Locality V2 Result — 2026-10-21
+# QMBT-2R Pre-Seed Locality V2 Result — 2026-10-21
 
 Status: FAIL_V2_PRESEED_LOCALITY_PASS
 
@@ -66,7 +66,7 @@ The V2 classifier therefore behaved as preregistered by returning
 
 This execution provides diagnostic evidence about the suitability of the
 current Search-based pre-Seed locality resolution strategy. It is not evidence
-for or against the TastePassport product hypothesis.
+for or against the Tarsima product hypothesis.
 
 ## Decision
 

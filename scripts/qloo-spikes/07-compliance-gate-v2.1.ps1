@@ -1,4 +1,4 @@
-# TastePassport - Quality + Compliance Gate v2.1
+# Tarsima - Quality + Compliance Gate v2.1
 # Conservative MVP policy.
 # REVIEW is a product/compliance state, not a religious ruling.
 #
@@ -253,7 +253,7 @@ function Evaluate-PlaceV21 {
 
     # 4. Food/cafe detection.
     # A PASS here means only that Qloo supplied an explicit halal metadata tag.
-    # It is not an independent certification or guarantee by TastePassport.
+    # It is not an independent certification or guarantee by Tarsima.
     $foodPattern = Find-Pattern -Text $text -Patterns @(
         '\brestaurant\b', '\bcafe\b', '\bcoffee\b', '\bbakery\b',
         '\bkebab\b', '\bfood\b', '\bice cream\b', '\bdessert\b', '\bdining\b'
