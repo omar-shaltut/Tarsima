@@ -82,7 +82,7 @@ Validated in Gate 3:
 - request-local profile resolution;
 - live Qloo retrieval;
 - unchanged deterministic reconciliation/ranking;
-- deterministic grounded explanation bridge pending Gate 4 provider wiring;
+- deterministic grounded explanation bridge wired through the bounded Gemini-backed agent adapter;
 - English and Arabic/RTL desktop rendering;
 - mobile responsive rendering;
 - HTTP `/api/judge/search` and `/api/judge/run` live smoke;
@@ -109,9 +109,9 @@ The agent may not:
 - bypass evidence validation;
 - silently change recommendation policy.
 
-Exact provider/framework choice remains unresolved until this gate.
+Provider/framework choice is frozen as Google Gemini API (`gemini-3.6-flash`) through `@openai/agents@0.21.0`; live Gemini validation and the full live Qloo + agent path have passed.
 
-Status: PENDING
+Status: COMPLETE
 
 ### Gate 5 — End-to-end validation
 
