@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { AgenticExplanationAdapter } from '../../../../src/judge-experience/agentic-explanation-adapter';
 import { QlooEntitySearchClient } from '../../../../src/judge-experience/profile-resolution';
 import { QlooRetrievalAdapter } from '../../../../src/judge-experience/qloo-retrieval-adapter';
 import {
@@ -21,15 +22,18 @@ export async function POST(request: Request) {
     return jsonError('INVALID_REQUEST', 400);
   }
 
-  const apiKey = process.env.QLOO_API_KEY?.trim();
-  if (!apiKey) {
+  const qlooApiKey = process.env.QLOO_API_KEY?.trim();
+  const geminiApiKey = process.env.GEMINI_API_KEY?.trim();
+
+  if (!qlooApiKey || !geminiApiKey) {
     return jsonError('SERVICE_UNAVAILABLE', 503);
   }
 
   try {
     const payload = await executeJudgeInputRun(body, {
-      entitySearch: new QlooEntitySearchClient({ apiKey }),
-      retrievalSource: new QlooRetrievalAdapter({ apiKey }),
+      entitySearch: new QlooEntitySearchClient({ apiKey: qlooApiKey }),
+      retrievalSource: new QlooRetrievalAdapter({ apiKey: qlooApiKey }),
+      explanationSource: new AgenticExplanationAdapter(),
     });
 
     return NextResponse.json(payload);

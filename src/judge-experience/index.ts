@@ -9,3 +9,4 @@ export * from './adapter-runner.ts';
 export * from './qloo-retrieval-adapter.ts';
 export * from './profile-resolution.ts';
 export * from './deterministic-explanation-adapter.ts';
+export * from './agentic-explanation-adapter.ts';

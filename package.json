@@ -16,10 +16,12 @@
     "frontend:dev": "node --experimental-strip-types scripts/serve-judge-frontend.ts"
   },
   "dependencies": {
+    "@openai/agents": "0.21.0",
     "next": "16.4.3",
     "next-intl": "4.14.9",
     "react": "19.3.1",
-    "react-dom": "19.3.1"
+    "react-dom": "19.3.1",
+    "zod": "4.6.7"
   },
   "devDependencies": {
     "@types/node": "26.6.5",
