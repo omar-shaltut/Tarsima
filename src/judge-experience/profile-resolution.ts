@@ -75,7 +75,7 @@ function mapCandidates(payload: unknown): readonly QlooEntitySearchCandidate[] {
     throw new Error('Qloo entity search response is missing results.');
   }
 
-  return payload.results.map((candidate) => {
+  const candidates = payload.results.map((candidate) => {
     if (!isRecord(candidate)) {
       throw new Error('Qloo entity search returned a malformed candidate.');
     }
@@ -116,6 +116,15 @@ function mapCandidates(payload: unknown): readonly QlooEntitySearchCandidate[] {
       types: [...types],
       disambiguation,
     };
+  });
+
+  const seenEntityIds = new Set<string>();
+
+  return candidates.filter((candidate) => {
+    if (seenEntityIds.has(candidate.entity_id)) return false;
+
+    seenEntityIds.add(candidate.entity_id);
+    return true;
   });
 }
 

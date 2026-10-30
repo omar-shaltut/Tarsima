@@ -1,4 +1,4 @@
-﻿# TastePassport - Qloo Search Spike
+# Tarsima - Qloo Search Spike
 # Verified working test: Interstellar entity resolution
 
 if (-not $headers -or -not $headers["X-Api-Key"]) {

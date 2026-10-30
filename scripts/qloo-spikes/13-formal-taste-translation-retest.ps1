@@ -1,4 +1,4 @@
-# TastePassport - Formal Taste Translation Retest
+# Tarsima - Formal Taste Translation Retest
 # Confirmatory-by-default execution harness for the pre-registered protocol.
 # Pair 2 and Pair 3 x Istanbul and London.
 # No agent loop, compliance logic, FoodSignalShare, or post-hoc curation.

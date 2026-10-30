@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { AgenticExplanationAdapter } from '../../../../src/judge-experience/agentic-explanation-adapter';
+import { ResilientExplanationAdapter } from '../../../../src/judge-experience/resilient-explanation-adapter';
 import { QlooEntitySearchClient } from '../../../../src/judge-experience/profile-resolution';
 import { QlooRetrievalAdapter } from '../../../../src/judge-experience/qloo-retrieval-adapter';
 import {
@@ -33,7 +33,10 @@ export async function POST(request: Request) {
     const payload = await executeJudgeInputRun(body, {
       entitySearch: new QlooEntitySearchClient({ apiKey: qlooApiKey }),
       retrievalSource: new QlooRetrievalAdapter({ apiKey: qlooApiKey }),
-      explanationSource: new AgenticExplanationAdapter(),
+      explanationSource: new ResilientExplanationAdapter({
+        forceDeterministic:
+          process.env.FORCE_DETERMINISTIC_EXPLANATIONS === 'true',
+      }),
     });
 
     return NextResponse.json(payload);

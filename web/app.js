@@ -68,7 +68,7 @@ function progressPanel(progress) {
   const heading = element('div', 'section-heading');
   heading.append(
     element('span', 'eyebrow', 'Verified execution'),
-    element('h2', '', 'How TastePassport built these picks'),
+    element('h2', '', 'How Tarsima built these picks'),
   );
   section.append(heading);
 

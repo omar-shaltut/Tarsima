@@ -1,12 +1,12 @@
-# TastePassport
+# Tarsima
 
 **Make a new city feel like yours.**
 
-TastePassport is an agentic cultural translation project for the **Qloo Agentic Hackathon 2026**. It is designed for people relocating to a new city—international students, expats, relocated workers, and others who want local recommendations that reflect their existing tastes rather than generic popularity.
+Tarsima is an agentic cultural translation project for the **Qloo Agentic Hackathon 2026**. It is designed for people relocating to a new city—international students, expats, relocated workers, and others who want local recommendations that reflect their existing tastes rather than generic popularity.
 
 ## Core idea
 
-A user provides a few taste signals across domains (for example food, films, brands, design, places, or other interests) plus a destination city. TastePassport uses Qloo as the core source of cultural intelligence to:
+A user provides a few taste signals across domains (for example food, films, brands, design, places, or other interests) plus a destination city. Tarsima uses Qloo as the core source of cultural intelligence to:
 
 1. resolve the user's taste signals to Qloo entities;
 2. build a cross-domain taste profile;
@@ -29,7 +29,7 @@ Qloo is intended to be the source of recommendation decisions. Any LLM layer is 
 
 ## Compliance
 
-TastePassport is developed under a project-owner compliance policy that takes precedence over competition optimization. See [`docs/COMPLIANCE.md`](docs/COMPLIANCE.md).
+Tarsima is developed under a project-owner compliance policy that takes precedence over competition optimization. See [`docs/COMPLIANCE.md`](docs/COMPLIANCE.md).
 
 ## Project constitution
 

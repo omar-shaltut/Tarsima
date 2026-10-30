@@ -1,4 +1,4 @@
-# TastePassport - QMBT-1 Quota-Matched Broad-Taxonomy Retest
+# Tarsima - QMBT-1 Quota-Matched Broad-Taxonomy Retest
 # Confirmatory execution harness for docs/QMBT_1_PROTOCOL.md.
 # Pair 2 and Pair 3 x Istanbul and London.
 # No agent loop, compliance logic, generated explanations, or post-hoc curation.

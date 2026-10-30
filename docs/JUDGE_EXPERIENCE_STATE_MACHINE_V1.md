@@ -2,11 +2,11 @@
 
 Status: **FROZEN FOR IMPLEMENTATION VALIDATION**
 
-This document translates the current TastePassport product and ranking decisions into an executable state machine. It does not change retrieval, ranking, or slot-selection policy.
+This document translates the current Tarsima product and ranking decisions into an executable state machine. It does not change retrieval, ranking, or slot-selection policy.
 
 ## 1. Product invariant
 
-TastePassport may automate the full run from user input to rendered recommendations, but automation does not transfer recommendation authority to the LLM.
+Tarsima may automate the full run from user input to rendered recommendations, but automation does not transfer recommendation authority to the LLM.
 
 Decision ownership is fixed:
 

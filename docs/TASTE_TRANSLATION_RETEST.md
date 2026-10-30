@@ -2,7 +2,7 @@
 
 Status: PRE-REGISTERED — READY FOR EXECUTION
 
-This document defines the next validation gate for TastePassport.
+This document defines the next validation gate for Tarsima.
 
 It exists to prevent architecture, UI, or agent-loop work from expanding before the central product promise has enough empirical support.
 
@@ -97,7 +97,7 @@ Evaluators must report:
 
 ### Layer 4 — Baseline advantage
 
-TastePassport must eventually demonstrate value beyond a generic destination/category ranking.
+Tarsima must eventually demonstrate value beyond a generic destination/category ranking.
 
 A baseline must be included only after its Qloo/API semantics are explicitly verified.
 

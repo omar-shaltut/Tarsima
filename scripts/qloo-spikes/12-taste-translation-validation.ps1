@@ -1,4 +1,4 @@
-# TastePassport - Taste Translation Validation Spike
+# Tarsima - Taste Translation Validation Spike
 # Isolates cross-domain taste translation from agentic refinement and compliance logic.
 
 param(

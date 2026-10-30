@@ -1,4 +1,4 @@
-# TastePassport - Quality + Compliance Gate v1
+# Tarsima - Quality + Compliance Gate v1
 # Historical spike preserved as tested.
 # Known limitations discovered:
 # - Trigger could disagree with the final Reason.
@@ -126,7 +126,7 @@ function Get-ComplianceDecision {
     }
 }
 
-function Evaluate-TastePassportPlace {
+function Evaluate-TarsimaPlace {
     param($Place)
 
     $quality = Get-QualityDecision $Place
@@ -175,8 +175,8 @@ function Evaluate-TastePassportPlace {
     }
 }
 
-$evaluatedA = @($placesA | ForEach-Object { Evaluate-TastePassportPlace $_ })
-$evaluatedB = @($placesB | ForEach-Object { Evaluate-TastePassportPlace $_ })
+$evaluatedA = @($placesA | ForEach-Object { Evaluate-TarsimaPlace $_ })
+$evaluatedB = @($placesB | ForEach-Object { Evaluate-TarsimaPlace $_ })
 
 function Show-GateMetrics {
     param([string]$ProfileName, [array]$Results)

@@ -1,7 +1,7 @@
 # TARSIMA Project State
 
 **Recovered checkpoint date:** 2026-10-26  
-**Repository:** `omar-shaltut/TastePassport`  
+**Repository:** `omar-shaltut/Tarsima`
 **Active implementation branch:** `feat/tarsima-nextjs-frontend-v1`  
 **Open PR:** #18 — `Implement TARSIMA Next.js Frontend V1`  
 **Recovered code baseline SHA before this checkpoint:** `a67911c6fcf72014599176e795cebe90eb0a9005`  
@@ -177,7 +177,7 @@ Confirmed from CLI output and prior screenshots:
 - Vercel project: `tarsima/tarsima`.
 - Framework auto-detected as Next.js.
 - Git auto-deploy connection was deliberately **not** enabled during CLI setup.
-- The repository remains `omar-shaltut/TastePassport`; the Vercel project name does not rename the repository.
+- The repository remains `omar-shaltut/Tarsima`; the Vercel project name does not rename the repository.
 
 ### First deployment
 

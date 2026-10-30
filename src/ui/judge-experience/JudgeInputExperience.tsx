@@ -229,13 +229,10 @@ export function JudgeInputExperience({
     setRunState('idle');
   }
 
-  function SeedGroup({
-    side,
-    rows,
-  }: {
-    side: 'A' | 'B';
-    rows: readonly SeedRow[];
-  }) {
+  function renderSeedGroup(
+    side: 'A' | 'B',
+    rows: readonly SeedRow[],
+  ) {
     const title =
       side === 'A' ? t('input.personA') : t('input.personB');
 
@@ -442,8 +439,8 @@ export function JudgeInputExperience({
         </section>
 
         <div className="taste-grid">
-          <SeedGroup side="A" rows={personA} />
-          <SeedGroup side="B" rows={personB} />
+          {renderSeedGroup('A', personA)}
+          {renderSeedGroup('B', personB)}
         </div>
 
         <section className="run-panel">

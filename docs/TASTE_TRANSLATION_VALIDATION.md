@@ -1,4 +1,4 @@
-# TastePassport — Taste Translation Validation Spike
+# Tarsima — Taste Translation Validation Spike
 
 ## Status
 
@@ -400,7 +400,7 @@ The earlier inference that Qloo might mainly apply a profile-level score offset 
 
 `INCONCLUSIVE_RETEST`
 
-The evidence now supports Qloo personalization capability but does not yet validate the central TastePassport promise of meaningful cross-domain taste translation.
+The evidence now supports Qloo personalization capability but does not yet validate the central Tarsima promise of meaningful cross-domain taste translation.
 
 Do not expand to the agent loop, final trust architecture, or UI yet.
 

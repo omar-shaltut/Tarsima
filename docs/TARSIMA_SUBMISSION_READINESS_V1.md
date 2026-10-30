@@ -20,7 +20,7 @@ It is a planning and validation checkpoint only. It does not authorize runtime, 
 - Live Qloo retrieval and profile-resolution foundations are implemented behind server-side adapter boundaries.
 - Judge-facing real-input flow is implemented in `feat/judge-input-flow-v1` and validated locally against live Qloo.
 - No production overwrite has been authorized.
-- No LLM provider wiring has been authorized yet.
+- Gemini-backed bounded agentic explanation wiring is implemented and validated; deterministic recommendation authority remains unchanged.
 
 ## Frozen authority boundaries
 
@@ -128,7 +128,7 @@ Validate the complete live path:
 - secret-leak review;
 - failure-state review.
 
-Status: PENDING
+Status: COMPLETE
 
 ### Gate 6 — Public deployment
 
@@ -199,7 +199,7 @@ Do not add work merely for polish if it threatens completion.
 Deferred unless proven necessary:
 
 - additional locales beyond `en` and `ar`;
-- repository-wide TastePassport-to-Tarsima rename;
+- Git history rewrite for legacy branding;
 - recommendation-algorithm redesign;
 - schema redesign;
 - venue image provider;
@@ -208,17 +208,9 @@ Deferred unless proven necessary:
 - production infrastructure refactors;
 - judge-only visual effects.
 
-## Next technical task after Gate 3
+## Next technical task
 
-The next runtime task is not additional UI expansion.
-
-It is:
-
-`AGENTIC_ORCHESTRATION_V1`
-
-Before implementation, freeze the minimum agent behavior and provider/framework choice against the existing deterministic authority boundary.
-
-The agent must not select, substitute, reorder, or invent final venues.
+Proceed to Gate 6 — Public deployment only after preserving the validated Gate 5 configuration and authority boundaries.
 
 ## Completion principle
 

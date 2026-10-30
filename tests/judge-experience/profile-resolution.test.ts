@@ -63,6 +63,54 @@ test('builds default cross-domain Qloo search without type', async () => {
   ]);
 });
 
+test('dedupes search candidates by entity_id while preserving first provider occurrence', async () => {
+  const client = new QlooEntitySearchClient({
+    apiKey: 'test-secret',
+    fetchImpl: async () =>
+      new Response(
+        JSON.stringify({
+          results: [
+            {
+              entity_id: IDS[0],
+              name: 'Radiohead',
+              types: ['urn:entity:artist'],
+              disambiguation: 'Radiohead',
+            },
+            {
+              entity_id: IDS[0],
+              name: 'Radiohead',
+              types: ['urn:entity:person'],
+              disambiguation: null,
+            },
+            {
+              entity_id: IDS[1],
+              name: 'Radiohead',
+              types: ['urn:entity:album'],
+              disambiguation: 'Album',
+            },
+          ],
+        }),
+        { status: 200 },
+      ),
+  });
+
+  const candidates = await client.search({ query: 'Radiohead' });
+
+  assert.deepEqual(candidates, [
+    {
+      entity_id: IDS[0],
+      name: 'Radiohead',
+      types: ['urn:entity:artist'],
+      disambiguation: 'Radiohead',
+    },
+    {
+      entity_id: IDS[1],
+      name: 'Radiohead',
+      types: ['urn:entity:album'],
+      disambiguation: 'Album',
+    },
+  ]);
+});
 test('adds an explicit entity type only when requested', async () => {
   let capturedUrl = '';
 

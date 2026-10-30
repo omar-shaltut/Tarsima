@@ -1,4 +1,4 @@
-# TastePassport - Policy Conflict / False-Negative Audit
+# Tarsima - Policy Conflict / False-Negative Audit
 # Diagnostic only. Does not change Gate v2.1 policy or statuses.
 # Scans ALL current candidates for direct policy-relevant Qloo tag IDs/types,
 # independent of the regex pattern that originally decided the v2.1 verdict.
