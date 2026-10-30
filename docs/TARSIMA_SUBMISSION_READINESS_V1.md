@@ -136,7 +136,7 @@ Deploy the validated submission surface only after the live path passes.
 
 Production deployment remains separately gated from preview validation.
 
-Status: PENDING
+Status: COMPLETE
 
 ### Gate 7 — Repository submission hardening
 
@@ -152,7 +152,7 @@ Update repository-facing documentation to reflect the actual final product:
 - public demo link;
 - license verification.
 
-Status: PENDING
+Status: COMPLETE
 
 ### Gate 8 — Submission package
 
